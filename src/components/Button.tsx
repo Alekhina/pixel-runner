@@ -12,7 +12,7 @@ const pressStart2P = Press_Start_2P({
 });
 
 const styles = 
-    "h-[52px] px-[16px] uppercase bg-custom-yellow shadow-[inset_4px_4px_0_0_var(--color-light-shadow),inset_-4px_-4px_0_0_var(--color-brown-shadow)]";
+    "h-[52px] px-[16px] disabled:bg-brown-shadow uppercase bg-custom-yellow shadow-[inset_4px_4px_0_0_var(--color-light-shadow),inset_-4px_-4px_0_0_var(--color-brown-shadow)]";
 
 function Button({
   children,
