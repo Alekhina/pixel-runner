@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`h-full antialiased ${pressStart2P.variable}`}>
+    <html lang="ru" className={`h-full antialiased ${pressStart2P.className}`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
