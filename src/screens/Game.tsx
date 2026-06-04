@@ -25,7 +25,7 @@ function Game() {
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         const bg = new Image();
-        bg.src = "/background.jpg";
+        bg.src = "/background-2.jpg";
 
         // const characterImg = new Image();
         // characterImg.src = "/characters/vecta.png"; 
@@ -56,12 +56,16 @@ function Game() {
         konusImg.src = '/konus.png';
 
         let playerY = 270;
-        const jumpUp = 80;
+        const jumpUp = 200;
+        let playerVY = 0;
+
 
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.code === "ArrowUp") {
                 e.preventDefault();
-                playerY = Math.max(270 - 200, playerY - jumpUp);
+                // playerY = Math.max(270 - 200, playerY - jumpUp);
+                playerVY = -20;
+                console.log(playerVY);
                 useJumpFrame = true;
                 jumpUntil = performance.now() + JUMP_SPRITE_MS;
             }
@@ -70,6 +74,14 @@ function Game() {
                 playerY = Math.min(270, playerY + jumpUp);
             }
         };
+
+        const onPointerDown = () => {
+            if (playerY >= 270) {
+                playerVY = -20;
+                jumpUntil = performance.now() + JUMP_SPRITE_MS;
+            }
+        };
+        canvas.addEventListener("pointerdown", onPointerDown);
 
         window.addEventListener("keydown", onKeyDown);
 
@@ -80,7 +92,10 @@ function Game() {
             let offsetX = 0;
             let bgSpeed = 40;
             let barrierX = 350;
-            let barrierSpeed = 150;
+            let barrierSpeed = 300;
+
+            let delta_t = 1;
+            let g = 1;
 
             const scale = h / bg.naturalHeight;
             const bgW = bg.naturalWidth * scale;
@@ -118,14 +133,16 @@ function Game() {
                     characterDraw = runImages[6];
                     // useJumpFrame = false;
                 }
-            
-                if (playerY < 270) {
-                    if (playerY < 250) {
-                        playerY += 2;
-                    } else {
-                        playerY += 4;
-                    }
-                }
+                
+                
+                playerVY += g * delta_t
+                playerY += playerVY * delta_t
+                
+                playerY = Math.min(playerY, 270)
+                // if (playerY > 270) {
+                    // playerVY = 0;
+                // }
+
                 // if (Math.floor(now / 150) % 7 === 0) {
                     
                 // } else if (Math.floor(now / 150) % 7 === 1) {
