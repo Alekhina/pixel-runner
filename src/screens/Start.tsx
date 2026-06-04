@@ -1,15 +1,23 @@
 import React from "react";
+import { Press_Start_2P } from "next/font/google";
+import Button from "@/components/Button";
 
 type Props = {
     onClick: () => void,
 }
 
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+});
+
 function Start({onClick}: Props) {
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-6">
-            <h1>Игры для взрослых. Пора за руль.</h1>
-            <h2>Пройди путь до Кибертрака Вектор и открой скидку до 5000 ₽ на обучение.</h2>
-            <button onClick={onClick} className="rounded-xl cursor-pointer bg-green-500 hover:bg-green-600 px-8 py-3 text-white disabled:opacity-40">Начать игру</button>
+        <div className="flex px-[16px] w-[360px] h-[640px] pt-[74px] mx-auto bg-[url('/bg-phone.png')] bg-cover bg-center bg-no-repeat flex-col items-center justify-center">
+            <h1 className={`${pressStart2P.className} text-center text-[18px] uppercase leading-[40px] text-white font-normal`}>Игры для взрослых</h1>
+            <h2 className={`${pressStart2P.className} text-center text-[18px] lowercase leading-[40px] text-custom-lime font-normal`}>пора за руль</h2>
+            <h2 className="text-cream-text text-center">Пройди путь до Кибертрака Вектор и открой скидку до 5000 ₽ на обучение.</h2>
+            <Button onClick={onClick}>Начать игру</Button>
         </div>
     )
 }

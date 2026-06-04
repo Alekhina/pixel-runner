@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { Press_Start_2P } from "next/font/google";
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Вектор · Pixel Driver Game",
   description:
@@ -13,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className="h-full antialiased">
+    <html lang="ru" className={`h-full antialiased ${pressStart2P.variable}`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

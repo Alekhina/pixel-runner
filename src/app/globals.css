@@ -8,6 +8,11 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-custom-lime: #77FF00;
+  --color-custom-yellow: #FFCC00;
+  --color-brown-shadow: #AC6120;
+  --color-light-shadow: #FFF5CC99;
+  --color-cream-text: #EFE5CE;
 }
 
 body {
