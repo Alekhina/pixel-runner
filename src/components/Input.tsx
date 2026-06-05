@@ -18,12 +18,14 @@ type InputProps = {
 } & InputHTMLAttributes<HTMLInputElement>;
 
 const inputStyles =
-  "w-full h-[48px] px-4 box-border " +
+  "w-full h-[44px] px-4 box-border " +
   "bg-white/90 text-foreground placeholder:text-foreground/50 " +
+  "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input)] " +
+  // "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input), inset_0_0_0_2px_var(--color-inner-border-input)] " +
   "placeholder:text-foreground/50 " +
   "placeholder:[font-family:var(--font-handjet)] " +
   "placeholder:text-[24px] " +
-  "border-2 border-[var(--color-brown-shadow)] " +
+  "border-2 border-[var(--color-inner-border-input)] " +
   "outline-none focus:border-custom-lime " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 

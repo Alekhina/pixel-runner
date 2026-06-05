@@ -10,9 +10,14 @@
   --color-foreground: var(--foreground);
   --color-custom-lime: #77FF00;
   --color-custom-yellow: #FFCC00;
+  --color-custom-yellow-hover: #FFB700;
+  --color-custom-yellow-pressed: #CC8500;
+  --color-disabled: #586174;
   --color-brown-shadow: #AC6120;
   --color-light-shadow: #FFF5CC99;
   --color-cream-text: #EFE5CE;
+  --color-inner-border-input: #EFE5CE;
+  --color-inner-shadow-input: #A4A4C840;
 }
 
 body {
