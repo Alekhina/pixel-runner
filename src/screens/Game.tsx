@@ -1,4 +1,5 @@
 "use client";
+
 import { useRef } from "react";
 import { useEffect } from "react";
 
@@ -13,7 +14,6 @@ function Game() {
         if (!ctx) return;
 
         const dpr = window.devicePixelRatio ?? 1;
-
         const w = 360;
         const h = 640;
         canvas.style.width = `${w}px`;
@@ -21,17 +21,12 @@ function Game() {
         canvas.width = Math.floor(w * dpr);
         canvas.height = Math.floor(h * dpr);
 
-
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         const bg = new Image();
         bg.src = "/background-2.jpg";
 
-        // const characterImg = new Image();
-        // characterImg.src = "/characters/vecta.png"; 
-        // characterImg.src = "/characters/runner.gif";
-
-        const RUN_FRAMES = [
+        const RUN_FRAMES_KODIK = [
             "/characters/kodik-1.png",
             "/characters/kodik-2.png",
             "/characters/kodik-3.png",
@@ -41,7 +36,17 @@ function Game() {
             "/characters/kodik-7.png",
         ];
 
-        const runImages = RUN_FRAMES.map((src) => {
+        const RUN_FRAMES_VECTA = [
+            "/characters/vecta-1.png",
+            "/characters/vecta-2.png",
+            "/characters/vecta-3.png",
+            "/characters/vecta-4.png",
+            "/characters/vecta-5.png",
+            "/characters/vecta-6.png",
+            "/characters/vecta-7.png",
+        ]
+
+        const runImages = RUN_FRAMES_VECTA.map((src) => {
             const img = new Image();
             img.src = src;
             return img;
@@ -49,11 +54,23 @@ function Game() {
 
         let characterDraw = runImages[0];
         let useJumpFrame = false;
-        let jumpUntil = 0; // 0 = не в режиме прыжка
-        const JUMP_SPRITE_MS = 800; 
+        let jumpUntil = 0;
+        const JUMP_SPRITE_MS = 800;
 
         const konusImg = new Image();
         konusImg.src = '/konus.png';
+
+        const examImg = new Image();
+        examImg.src = '/exam.png';
+
+        const lakeImg = new Image();
+        lakeImg.src = '/lake.png';
+
+        const holeImg = new Image();
+        holeImg.src = '/hole.png';
+
+        const stopImg = new Image();
+        stopImg.src = '/stop.png';
 
         let playerY = 270;
         const jumpUp = 200;
@@ -109,12 +126,11 @@ function Game() {
                 const x1 = -offsetX;
                 ctx.drawImage(bg, x1, 0, bgW, h);
                 ctx.drawImage(bg, x1 + bgW, 0, bgW, h);
-                ctx.drawImage(konusImg, barrierX, 330, 80, 90);
-                ctx.drawImage(konusImg, barrierX + 200, 330, 80, 90);
-                ctx.drawImage(konusImg, barrierX + 450, 330, 80, 90);
-                ctx.drawImage(konusImg, barrierX + 600, 330, 80, 90);
-
-                // if (!isJumpSprite) {
+                ctx.drawImage(konusImg, barrierX, 330, 60, 75);
+                ctx.drawImage(lakeImg, barrierX + 400, 390, 90, 20);
+                ctx.drawImage(holeImg, barrierX + 750, 390, 90, 20);
+                ctx.drawImage(stopImg, barrierX + 1000, 290, 50, 120);
+                
                 if (playerY >= 270) {
                     if (Math.floor(now / 80) % 6 === 0) {
                         characterDraw = runImages[0];
@@ -131,7 +147,6 @@ function Game() {
                     }
                 } else {
                     characterDraw = runImages[6];
-                    // useJumpFrame = false;
                 }
                 
                 
@@ -143,61 +158,9 @@ function Game() {
                     // playerVY = 0;
                 // }
 
-                // if (Math.floor(now / 150) % 7 === 0) {
-                    
-                // } else if (Math.floor(now / 150) % 7 === 1) {
-                //     ctx.drawImage(
-                //         runImages[1],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // } else if (Math.floor(now / 150) % 7 === 2) {
-                //     ctx.drawImage(
-                //         runImages[2],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // } else if (Math.floor(now / 150) % 7 === 3) {
-                //     ctx.drawImage(
-                //         runImages[3],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // } else if (Math.floor(now / 150) % 7 === 4) {
-                //     ctx.drawImage(
-                //         runImages[4],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // } else if (Math.floor(now / 150) % 7 === 5) {
-                //     ctx.drawImage(
-                //         runImages[5],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // } else if (Math.floor(now / 150) % 7 === 6) {
-                //     ctx.drawImage(
-                //         runImages[6],
-                //         48,
-                //         playerY,
-                //         150,
-                //         150
-                //     );
-                // }
-
                 ctx.drawImage(
                         characterDraw,
-                        48,
+                        30,
                         playerY,
                         150,
                         150

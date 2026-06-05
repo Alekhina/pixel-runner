@@ -13,13 +13,15 @@ const pressStart2P = Press_Start_2P({
 
 function Start({onClick}: Props) {
     return (
-        <div className="flex justify-between pb-[102px] px-[16px] w-[360px] h-[640px] pt-[74px] mx-auto bg-[url('/bg-phone.png')] bg-cover bg-center bg-no-repeat flex-col items-center">
+        <div className="flex justify-between pb-[102px] px-[16px] w-[360px] h-[640px] pt-[62px] mx-auto bg-[url('/bg-phone.png')] bg-cover bg-center bg-no-repeat flex-col items-center">
             <div className="">
-                <h1 className={`${pressStart2P.className} text-center text-[18px] uppercase leading-[40px] text-white font-normal`}>Игры для взрослых</h1>
-                <h2 className={`${pressStart2P.className} text-center text-[18px] lowercase leading-[40px] text-custom-lime font-normal`}>пора за руль</h2>
-                <h2 className="text-cream-text text-center">Пройди путь до Кибертрака Вектор и открой скидку до 5000 ₽ на обучение.</h2>
+                <div className="flex-col gap-[8px]">
+                    <p className={`${pressStart2P.className} text-center p-0 text-[18px] uppercase text-white font-normal`}>Игры для взрослых</p>
+                    <p className={`${pressStart2P.className} text-center p-0 text-[18px] lowercase text-custom-lime font-normal`}>пора за руль</p>
+                </div>
+                <p className="text-cream-text pt-[14px] text-center">Пройди путь до Кибертрака Вектор и открой скидку до 5000 ₽ на обучение.</p>
             </div>
-            <Button onClick={onClick}>Начать игру</Button>
+            <Button onClick={onClick} className="w-full">Начать игру</Button>
         </div>
     )
 }

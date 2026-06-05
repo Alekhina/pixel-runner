@@ -1,0 +1,14 @@
+<svg
+      viewBox="0 0 12 10"
+      className="h-3 w-3 text-custom-lime transition-opacity duration-150"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1 5 L4.5 8.5 L11 1"
+        stroke="#EFE5CE"
+        strokeWidth="2"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
+</svg>
