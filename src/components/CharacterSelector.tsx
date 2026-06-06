@@ -14,11 +14,11 @@ function CharacterSelector({  value, onChange  }: Props) {
 
     return (
         <div role="radiogroup" className="flex gap-[12px]">
-            <button role="radio" onClick={() => onChange(CHARACTERS[0].id)} className="flex-col cursor-pointer items-center gap-3 rounded-2xl transition hover:ring-1 hover:ring-red-500 hover:shadow-[0_0_16px_red]" >
-                <div className="flex items-center justify-center"><img className="h-[280px] w-[158px]" src={'/vecta-card-modile.png'}></img></div>
+            <button role="radio" onClick={() => onChange(CHARACTERS[0].id)} className="flex-col cursor-pointer items-center gap-3 rounded-2xl transition hover:shadow-[0_0_16px_red]" >
+                <div className="flex items-center justify-center"><img src={'/vecta-card-modile.png'} className={`h-[280px] w-[158px] transition ${selectedVecta ? "[filter:drop-shadow(0_0_8px_red)_drop-shadow(0_0_20px_red)]" : "hover:[filter:...]"}`}></img></div>
             </button>
-            <button role="radio" onClick={() => onChange(CHARACTERS[1].id)} className="flex-col cursor-pointer items-center gap-3 rounded-2xl transition hover:ring-1 hover:ring-custom-lime hover:shadow-[0_0_16px_#77FF00]">
-                <div className="flex items-center justify-center"><img className="h-[280px] w-[158px]" src={'/kodik-card-mobile.png'}></img></div>
+            <button role="radio" onClick={() => onChange(CHARACTERS[1].id)} className="flex-col cursor-pointer items-center gap-3 rounded-2xl transition hover:shadow-[0_0_16px_#77FF00]">
+                <div className="flex items-center justify-center"><img src={'/kodik-card-mobile.png'} className={`h-[280px] w-[158px] transition ${selectedKodik ? "[filter:drop-shadow(0_0_8px_#77FF00)_drop-shadow(0_0_20px_#77FF00)]" : "hover:[filter:...]"}`}></img></div>
             </button>
         </div>
     )

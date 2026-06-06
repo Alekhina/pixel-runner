@@ -1,9 +1,15 @@
 "use client";
 
+import { CharacterId } from "@/lib/characters";
+import { RUN_FRAMES } from "@/lib/characters";
 import { useRef } from "react";
 import { useEffect } from "react";
 
-function Game() {
+type Props = {
+    character: CharacterId,
+}
+
+function Game({ character }: Props) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -26,27 +32,27 @@ function Game() {
         const bg = new Image();
         bg.src = "/background-2.jpg";
 
-        const RUN_FRAMES_KODIK = [
-            "/characters/kodik-1.png",
-            "/characters/kodik-2.png",
-            "/characters/kodik-3.png",
-            "/characters/kodik-4.png",
-            "/characters/kodik-5.png",
-            "/characters/kodik-6.png",
-            "/characters/kodik-7.png",
-        ];
+        // const RUN_FRAMES_KODIK = [
+        //     "/characters/kodik-1.png",
+        //     "/characters/kodik-2.png",
+        //     "/characters/kodik-3.png",
+        //     "/characters/kodik-4.png",
+        //     "/characters/kodik-5.png",
+        //     "/characters/kodik-6.png",
+        //     "/characters/kodik-7.png",
+        // ];
 
-        const RUN_FRAMES_VECTA = [
-            "/characters/vecta-1.png",
-            "/characters/vecta-2.png",
-            "/characters/vecta-3.png",
-            "/characters/vecta-4.png",
-            "/characters/vecta-5.png",
-            "/characters/vecta-6.png",
-            "/characters/vecta-7.png",
-        ]
+        // const RUN_FRAMES_VECTA = [
+        //     "/characters/vecta-1.png",
+        //     "/characters/vecta-2.png",
+        //     "/characters/vecta-3.png",
+        //     "/characters/vecta-4.png",
+        //     "/characters/vecta-5.png",
+        //     "/characters/vecta-6.png",
+        //     "/characters/vecta-7.png",
+        // ]
 
-        const runImages = RUN_FRAMES_VECTA.map((src) => {
+        const runImages = RUN_FRAMES[character].map((src) => {
             const img = new Image();
             img.src = src;
             return img;
@@ -183,7 +189,7 @@ function Game() {
     //     cancelAnimationFrame(rafId);
     //     window.removeEventListener("keydown", onKeyDown);
     // };
-    }, []);
+    }, [character]);
 
     return (
         <div className="flex  items-center justify-center">
