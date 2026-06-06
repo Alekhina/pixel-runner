@@ -32,26 +32,6 @@ function Game({ character }: Props) {
         const bg = new Image();
         bg.src = "/background-2.jpg";
 
-        // const RUN_FRAMES_KODIK = [
-        //     "/characters/kodik-1.png",
-        //     "/characters/kodik-2.png",
-        //     "/characters/kodik-3.png",
-        //     "/characters/kodik-4.png",
-        //     "/characters/kodik-5.png",
-        //     "/characters/kodik-6.png",
-        //     "/characters/kodik-7.png",
-        // ];
-
-        // const RUN_FRAMES_VECTA = [
-        //     "/characters/vecta-1.png",
-        //     "/characters/vecta-2.png",
-        //     "/characters/vecta-3.png",
-        //     "/characters/vecta-4.png",
-        //     "/characters/vecta-5.png",
-        //     "/characters/vecta-6.png",
-        //     "/characters/vecta-7.png",
-        // ]
-
         const runImages = RUN_FRAMES[character].map((src) => {
             const img = new Image();
             img.src = src;
@@ -171,14 +151,6 @@ function Game({ character }: Props) {
                         150,
                         150
                     );
-
-                // ctx.drawImage(
-                //     characterImg,
-                //     48,
-                //     playerY,
-                //     110,
-                //     150
-                // );
 
                 rafId = requestAnimationFrame(loop);
             };

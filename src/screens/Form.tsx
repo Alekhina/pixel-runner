@@ -3,13 +3,46 @@ import { useState } from "react";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import AccentText from "@/components/AccentText";
+import { LeadFormField, LeadFormFields, LeadFormErrors } from "@/lib/form-validation";
+import { validateLeadField, validateLeadForm } from "@/lib/form-validation";
+import { formatPhoneInput } from "@/lib/form-validation";
+import { isLeadFormValid } from "@/lib/form-validation";
+// import 
 
 type Props = {
     onClick: () => void;
 }
 
 function Form({onClick}: Props) {
-    const [disabled, setDisabled] = useState(false);
+    const [values, setValues] = useState<LeadFormFields>({
+        firstName: "",
+        lastName: "",
+        city: "",
+        phone: "+7",
+        consent: false,
+        honeypot: "",
+    });
+    const [errors, setErrors] = useState<LeadFormErrors>({});
+    const [submitted, setSubmitted] = useState(false);
+
+    const updateField = (field: LeadFormField, value: string | boolean) => {
+        setValues((prev) => ({ ...prev, [field]: value }));
+        if (submitted) {
+            setErrors((prev) => ({
+            ...prev,
+            [field]: validateLeadField(field, { ...values, [field]: value }),
+            }));
+        }
+    };
+
+    const handleSubmit = () => {
+        setSubmitted(true);
+        const nextErrors = validateLeadForm(values);
+        setErrors(nextErrors);
+        if (Object.keys(nextErrors).length === 0) {
+            onClick();
+        }
+    };
 
     return (
         <div className="relative mx-auto h-[640px] w-[360px] overflow-hidden
@@ -33,7 +66,7 @@ function Form({onClick}: Props) {
                     />
                     Имя
                 </label>
-                <Input id="first-name" placeholder="Введи имя"></Input>
+                <Input id="first-name" placeholder="Введи имя" value={values.firstName} error={errors.firstName} onChange={(e) => updateField("firstName", e.target.value)}></Input>
 
                 <label htmlFor="last-name"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -46,7 +79,7 @@ function Form({onClick}: Props) {
                     />
                     Фамилия
                 </label>
-                <Input id="last-name" placeholder="Введи фамилию"></Input>
+                <Input id="last-name" placeholder="Введи фамилию" value={values.lastName} error={errors.lastName} onChange={(e) => updateField("lastName", e.target.value)}></Input>
 
                 <label htmlFor="city"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -59,7 +92,7 @@ function Form({onClick}: Props) {
                     />
                     Город
                 </label>
-                <Input id="city" placeholder="Введи город"></Input>
+                <Input id="city" placeholder="Введи город" value={values.city} error={errors.city} onChange={(e) => updateField("city", e.target.value)}></Input>
 
                 <label htmlFor="phone"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -72,10 +105,10 @@ function Form({onClick}: Props) {
                     />
                     Телефон
                 </label>
-                <Input id="phone" placeholder="+7 (xxx) xxx xx xx"></Input>
+                <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={errors.phone} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
 
                 <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left">
-                    <input id="consent" type="checkbox" className="peer sr-only" onChange={(e) => setDisabled(e.target.checked)} checked={disabled} />
+                    <input id="consent" type="checkbox" className="peer sr-only" checked={values.consent} onChange={(e) => updateField("consent", e.target.checked)}/>
                     <span
                         className="
                         relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center
@@ -96,9 +129,18 @@ function Form({onClick}: Props) {
                     <span className="flex-1 text-left text-[12px] text-cream-text">я согласен (-а) с <a className="underline">политикой конфиденциальности</a> и обработки персональных данных</span>
                 </label>
 
-                {/* <label className="text-cream-text text-[12px]">я согласен (-а) с политикой конфиденциальности и обработки персональных данных</label>
-                <input type="checkbox" checked={disabled} onChange={(e) => setDisabled(e.target.checked)}></input> */}
-                <Button disabled={!disabled} onClick={onClick}>Активировать Driver Mode</Button>
+                <input
+                    type="text"
+                    name="company"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden
+                    className="absolute left-[-9999px] h-0 w-0 opacity-0"
+                    value={values.honeypot}
+                    onChange={(e) => updateField("honeypot", e.target.value)}
+                />
+
+                <Button disabled={!isLeadFormValid(values)} onClick={handleSubmit}>Активировать Driver Mode</Button>
             </div>
         </div>
     )

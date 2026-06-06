@@ -15,18 +15,20 @@ type InputProps = {
   label?: string;
   className?: string;
   wrapperClassName?: string;
+  error?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
 const inputStyles =
   "w-full h-[44px] px-4 box-border " +
   "bg-white/90 text-foreground placeholder:text-foreground/50 " +
   "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input)] " +
+  "aria-invalid:border-red-500 aria-invalid:focus:border-red-500 " +
   // "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input), inset_0_0_0_2px_var(--color-inner-border-input)] " +
   "placeholder:text-foreground/50 " +
   "placeholder:[font-family:var(--font-handjet)] " +
   "placeholder:text-[24px] " +
   "border-2 border-[var(--color-inner-border-input)] " +
-  "outline-none focus:border-custom-lime " +
+  "outline-none focus:border-custom-yellow " +
   "disabled:cursor-not-allowed disabled:opacity-50";
 
 const labelStyles =
@@ -38,6 +40,7 @@ function Input({
   id,
   className = "",
   wrapperClassName = "",
+  error = "",
   ...props
 }: InputProps) {
   const inputId = id ?? (label ? `input-${label}` : undefined);
@@ -51,6 +54,7 @@ function Input({
       ) : null}
       <input
         id={inputId}
+        aria-invalid={error ? true : undefined}
         className={`${handjet.variable} ${inputStyles} ${className}`.trim()}
         {...props}
       />
