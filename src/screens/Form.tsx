@@ -48,10 +48,16 @@ function Form({onClick}: Props) {
         <div className="relative mx-auto h-[640px] w-[360px] overflow-hidden
             bg-[url('/bg-form-mobile.png')] bg-cover bg-center bg-no-repeat
         ">
+        <img
+            src="/form-border.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[1] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+        />
             <div className="absolute left-1/2 top-1/2 h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2
-            rounded-none border-2 border-white/40
+            rounded-none
             bg-black/10 backdrop-blur-md aria-hidden"></div>
-            <div className="relative z-10 flex h-full flex-col items-stretch justify-center gap-2 p-6">
+            <div className="relative z-10 flex h-full flex-col items-stretch justify-center gap-2 p-[32px]">
                 <p className="text-cream-text text-[16px] text-center">Чтобы выйти на старт, активируй</p>
                 <AccentText className="uppercase text-[24px] text-center">Driver Mode</AccentText>
 
