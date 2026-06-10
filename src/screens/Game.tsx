@@ -9,11 +9,18 @@ import type { GameAssets, GameState } from "@/game/types";
 import { useRef } from "react";
 import { useEffect } from "react";
 import { isColliding } from "@/game/collision";
+import { Press_Start_2P } from "next/font/google";
+import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 
 type Props = {
     character: CharacterId,
     onComplete: () => void,
 }
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 function loadImage(src: string): HTMLImageElement {
   const img = new Image();
@@ -23,8 +30,9 @@ function loadImage(src: string): HTMLImageElement {
 
 function Game({ character, onComplete }: Props) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const distanceRef = useRef<HTMLSpanElement | null>(null);
+    const progressRef = useRef<ProgressBarHandle | null>(null);
 
-    
     useEffect(() => {
         let cancelled = false;
         const canvas = canvasRef.current;
@@ -61,6 +69,7 @@ function Game({ character, onComplete }: Props) {
         let playerY = PLAYER.groundY;
         let playerVY = 0;
         let jumpUntil = 0;
+        let distance = 0;
         const JUMP_SPRITE_MS = 800;
         const jumpUp = 200;
         
@@ -104,7 +113,7 @@ function Game({ character, onComplete }: Props) {
                     return;
                 }
 
-                console.log("tick", playerY, status);
+                // console.log("tick", playerY, status);
 
                 const dt = Math.min((now - last) / 1000, 0.05);
                 last = now;
@@ -121,7 +130,7 @@ function Game({ character, onComplete }: Props) {
                     playerVY,
                     groundY: PLAYER.groundY,
                     obstacles: buildObstacles(barrierX),
-                    distance: 0, 
+                    distance, 
                     bgOffset,
                 }
 
@@ -129,6 +138,14 @@ function Game({ character, onComplete }: Props) {
                     status = "crashed";
                     onComplete();
                 }
+
+                distance += 0.5;
+                // console.log(Math.floor(distance))
+
+                if (distanceRef.current) {
+                    distanceRef.current.textContent = `${Math.floor(distance)}`;
+                }
+                progressRef.current?.setValue(Math.floor(distance));
                 
                 drawFrame(ctx, state, assets, now);          
                 rafId = requestAnimationFrame(loop);
@@ -146,8 +163,9 @@ function Game({ character, onComplete }: Props) {
     }, [character]);
 
     return (
-        <div className="flex  items-center justify-center">
-            <div className="absolute top-[10px] h-[90px] w-[328px] bg-black/10 backdrop-blur-md text-center text-white border-2 border-white">ПРОБЕГ 1000/5000</div>
+        <div className="flex flex-col items-center justify-center">
+            <div className={`${pressStart2P.className} absolute top-[20px] h-[90px] w-[328px] text-[10px] bg-black/10 backdrop-blur-md text-center text-white border-2 border-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
+            <ProgressBar ref={progressRef} max={5000} className="absolute top-[40px] mt-2" />
             <canvas ref={canvasRef}></canvas>
         </div>
     );
