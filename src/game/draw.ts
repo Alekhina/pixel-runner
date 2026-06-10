@@ -1,5 +1,8 @@
 import { GameState } from "./types";
 import { GameAssets } from "./types";
+import { DEBUG_HITBOXES } from "./config";
+import { Area } from "./types";
+import { getPlayerHitbox } from "./collision";
 
 export function drawFrame(
     ctx: CanvasRenderingContext2D,
@@ -61,6 +64,17 @@ function drawPlayer(ctx:CanvasRenderingContext2D, state: GameState, assets: Game
     );
 }
 
+function strokeSprite(ctx:CanvasRenderingContext2D, spriteHitbox: Area) {
+    ctx.save();
+    ctx.strokeStyle = "white";
+    ctx.strokeRect(spriteHitbox.x, spriteHitbox.y, spriteHitbox.w, spriteHitbox.h);
+    ctx.restore();
+}
+
 function drawDebugHitboxes(ctx:CanvasRenderingContext2D, state: GameState): void {
-    // ctx.drawImage();
+    if (!DEBUG_HITBOXES) {
+        return;
+    }
+    strokeSprite(ctx, getPlayerHitbox(state));
+    state.obstacles.forEach((obs) => {strokeSprite(ctx, obs.hitbox)});
 }
