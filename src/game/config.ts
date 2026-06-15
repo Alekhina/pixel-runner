@@ -1,5 +1,7 @@
 export const DEBUG_HITBOXES = true;
 
+export const DISTANCE_GOAL = 5000;
+
 export const CANVAS = { w: 360, h: 640 };
 
 export const PLAYER = {

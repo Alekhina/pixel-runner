@@ -17,7 +17,8 @@ export type Obstacle = {
     hitbox: Area,
 };
 
-type GameStatus = "playing" | "crashed";
+export type GameStatus = "playing" | "crashed" | "won";
+export type GameEndReason = "crash" | "victory";
 
 export type ObstacleKind = "konus" | "lake" | "hole" | "stop" | "exam";
 
@@ -35,6 +36,7 @@ export type GameState = {
 export type GameResult = {
     distance: number;
     character: CharacterId;
+    reason: GameEndReason;
 };
 
 export type GameAssets = {

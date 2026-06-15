@@ -1,21 +1,30 @@
 "use client";
 
+import { getDiscount } from "@/lib/discount";
 import { CharacterId } from "@/lib/characters";
 import { RUN_FRAMES } from "@/lib/characters";
 import { CANVAS, PLAYER, SPEEDS } from "@/game/config";
+import { DISTANCE_GOAL } from "@/game/config";
 import { drawFrame } from "@/game/draw";
 import { buildObstacles } from "@/game/state";
-import type { GameAssets, GameState } from "@/game/types";
+import type { GameAssets, GameResult, GameState } from "@/game/types";
 import { useRef } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isColliding } from "@/game/collision";
-import { Press_Start_2P } from "next/font/google";
+import { Handjet, Press_Start_2P } from "next/font/google";
 import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
+import Modal from "@/components/Modal";
+import Button from "@/components/Button";
 
 type Props = {
     character: CharacterId,
-    onComplete: () => void,
+    onComplete: (result: GameResult) => void,
 }
+
+const handjet = Handjet({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-handjet",
+});
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -29,9 +38,12 @@ function loadImage(src: string): HTMLImageElement {
 }
 
 function Game({ character, onComplete }: Props) {
+    const [endResult, setEndResult] = useState<GameResult | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const distanceRef = useRef<HTMLSpanElement | null>(null);
     const progressRef = useRef<ProgressBarHandle | null>(null);
+    const onEndRef = useRef(onComplete);
+    onEndRef.current = onComplete;
 
     useEffect(() => {
         let cancelled = false;
@@ -124,6 +136,25 @@ function Game({ character, onComplete }: Props) {
                 playerY += playerVY * delta_t;
                 playerY = Math.min(playerY, PLAYER.groundY);
 
+                distance += 0.5;
+                // console.log(Math.floor(distance))
+
+                if (distanceRef.current) {
+                    distanceRef.current.textContent = `${Math.floor(distance)}`;
+                }
+                progressRef.current?.setValue(Math.floor(distance));
+
+                if (distance >= DISTANCE_GOAL) {
+                    status = "won";
+                    // onEndRef.current({
+                    setEndResult({
+                        distance: DISTANCE_GOAL,
+                        character,
+                        reason: "victory",
+                    });
+                    return;
+                }
+
                 const state: GameState ={
                     status,
                     playerY,
@@ -136,16 +167,15 @@ function Game({ character, onComplete }: Props) {
 
                 if (status === "playing" && isColliding(state)) {
                     status = "crashed";
-                    onComplete();
-                }
+                    // onEndRef.current({
+                    setEndResult({
+                        distance: distance,
+                        character,
+                        reason: "crash",
+                    });
 
-                distance += 0.5;
-                // console.log(Math.floor(distance))
-
-                if (distanceRef.current) {
-                    distanceRef.current.textContent = `${Math.floor(distance)}`;
+                    return;
                 }
-                progressRef.current?.setValue(Math.floor(distance));
                 
                 drawFrame(ctx, state, assets, now);          
                 rafId = requestAnimationFrame(loop);
@@ -163,9 +193,55 @@ function Game({ character, onComplete }: Props) {
     }, [character]);
 
     return (
-        <div className="flex flex-col items-center justify-center">
-            <div className={`${pressStart2P.className} absolute top-[20px] h-[90px] w-[328px] text-[10px] bg-black/10 backdrop-blur-md text-center text-white border-2 border-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
-            <ProgressBar ref={progressRef} max={5000} className="absolute top-[40px] mt-2" />
+        <div className="flex flex-col relative items-center justify-center">
+            <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 backdrop-blur-md justify-center border-2 border-white">
+                <div id="hud-top" className="flex flex-row">
+                    <div id="progress"  className="flex flex-col relative top-[0px]">
+                        <div className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
+                        <ProgressBar ref={progressRef} max={5000} className="relative top-[0px] mt-2" />
+                    </div>
+                </div>
+            </div>
+            <Modal
+                open={endResult !== null}
+                onClose={() => {}}
+                title={endResult?.reason === "victory" ? "Победа!" : "Заезд завершен!"}
+                className="absolute b-[130px]"
+            >
+                {endResult && (
+                <>
+                    <p className="mb-4 text-[16px] text-center text-cream-text text-">
+                        Ты прошел {Math.floor(endResult.distance)} км.
+                        {getDiscount(endResult.distance) > 0
+                            ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`
+                            : " Скидка пока не открыта."}
+                    </p>
+                    <div className="flex justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Текущая попытка</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>1/3</p>
+                    </div>
+                    <div className="flex justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Лучший результат</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{Math.floor(endResult.distance)} км</p>
+                    </div>
+                    <div className="flex justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Доступная скидка</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{getDiscount(endResult.distance)} ₽</p>
+                    </div>
+                    <div className="flex justify-between">                
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>2</p>
+                    </div>
+                    <Button className="w-full text-black text-[16px]" onClick={() => {}}>
+                        Попробовать еще
+                    </Button>
+                    <Button className="w-full text-black text-[16px]" onClick={() => {}}>
+                        Забрать скидку
+                    </Button>
+                    <p className="text-cream-text text-[12px]">Условия скидки: 7 дней, не суммируется, один номер - один промокод</p>
+                </>
+                )}
+            </Modal>
             <canvas ref={canvasRef}></canvas>
         </div>
     );
