@@ -11,7 +11,7 @@ export type LeadFormField = keyof LeadFormFields;
 export type LeadFormErrors = Partial<Record<LeadFormField, string>>;
 
 const NAME_RE = /^[a-zA-Zа-яА-ЯёЁ\s-]{2,50}$/u;
-const CITY_RE = /^[a-zA-Zа-яА-ЯёЁ0-9\s.,-]{2,100}$/u;
+const CITY_RE = /^[a-zA-Zа-яА-ЯёЁ\s-]{2,100}$/u;
 
 export function normalizePhoneDigits(value: string): string {
   const digits = value.replace(/\D/g, "");
@@ -48,7 +48,7 @@ export function validateLeadField(field: LeadFormField, values: LeadFormFields):
     case "city": {
       const trimmed = values.city.trim();
       if (!trimmed) return "Введи город";
-      if (!CITY_RE.test(trimmed)) return "От 2 до 100 символов";
+      if (!CITY_RE.test(trimmed)) return "Только буквы, от 2 до 100 символов";
       return undefined;
     }
     case "phone":

@@ -261,7 +261,7 @@ function Game({ character, onComplete }: Props) {
             >
                 {endResult && (
                 <>
-                    <p className="mb-4 text-[16px] text-center text-cream-text text-">
+                    <p className="mb-4 text-[16px] text-center text-cream-text">
                         Ты прошел {Math.floor(endResult.distance)} км.
                         {getDiscount(endResult.distance) > 0
                             ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`

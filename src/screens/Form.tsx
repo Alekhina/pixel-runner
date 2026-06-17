@@ -71,12 +71,18 @@ function Form({onClick}: Props) {
             src="/form-border.svg"
             alt=""
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[1] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
         />
-            <div className="absolute left-1/2 top-1/2 h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2
-            rounded-none
-            bg-black/10 backdrop-blur-md aria-hidden"></div>
-            <div className="relative z-10 flex h-full flex-col items-stretch justify-center gap-2 p-[32px]">
+            <div className="
+                absolute left-1/2 top-1/2 h-[600px] 
+                w-[328px] -translate-x-1/2 -translate-y-1/2
+                overflow-y-auto overflow-x-hidden
+                hide-scrollbar 
+                rounded-none
+                bg-black/10 backdrop-blur-md aria-hidden
+                "
+            >
+            <div className="relative z-10 flex h-full flex-col items-stretch gap-2 pt-[24px] pb-[32px] px-[16px]">
                 <p className="text-cream-text text-[16px] text-center">Чтобы выйти на старт, активируй</p>
                 <AccentText className="uppercase text-[24px] text-center">Driver Mode</AccentText>
 
@@ -132,6 +138,7 @@ function Form({onClick}: Props) {
                 </label>
                 <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={getError("phone")} onBlur={() => markTouched("phone")} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
 
+                <div>
                 <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left">
                     <input id="consent" type="checkbox" className="peer sr-only" checked={values.consent} onChange={(e) => updateField("consent", e.target.checked)}/>
                     <span
@@ -157,6 +164,7 @@ function Form({onClick}: Props) {
                 {consentError ? (
                     <p className="-mt-1 text-[12px] text-red-500">{consentError}</p>
                 ) : null}
+                </div>
 
                 <input
                     type="text"
@@ -170,6 +178,7 @@ function Form({onClick}: Props) {
                 />
 
                 <Button onClick={handleSubmit}>Активировать Driver Mode</Button>
+            </div>
             </div>
         </div>
     )

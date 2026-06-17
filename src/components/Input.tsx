@@ -46,7 +46,7 @@ function Input({
   const inputId = id ?? (label ? `input-${label}` : undefined);
 
   return (
-    <div className={`flex w-full flex-col gap-1 ${wrapperClassName}`.trim()}>
+    <div className={`flex w-full flex-col ${wrapperClassName}`.trim()}>
       {label ? (
         <label htmlFor={inputId} className={labelStyles}>
           {label}
@@ -56,12 +56,12 @@ function Input({
         id={inputId}
         aria-invalid={error ? true : undefined}
         className={`${handjet.variable} ${inputStyles} ${
-          error ? "border-red-500 focus:border-red-500" : ""
+          error ? "border-1 border-chili-red focus:border-chili-red" : ""
         } ${className}`.trim()}
         {...props}
       />
       {error ? (
-        <p className="text-[12px] leading-tight text-red-500">{error}</p>
+        <p className="text-[12px] leading-tight text-chili-red">{error}</p>
       ) : null}
     </div>
   );
