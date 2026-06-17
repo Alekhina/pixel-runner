@@ -22,7 +22,7 @@ const inputStyles =
   "w-full h-[44px] px-4 box-border " +
   "bg-white/90 text-foreground placeholder:text-foreground/50 " +
   "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input)] " +
-  "aria-invalid:border-red-500 aria-invalid:focus:border-red-500 " +
+  // "aria-invalid:border-red-500 aria-invalid:focus:border-red-500 " +
   // "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input), inset_0_0_0_2px_var(--color-inner-border-input)] " +
   "placeholder:text-foreground/50 " +
   "placeholder:[font-family:var(--font-handjet)] " +
@@ -55,9 +55,14 @@ function Input({
       <input
         id={inputId}
         aria-invalid={error ? true : undefined}
-        className={`${handjet.variable} ${inputStyles} ${className}`.trim()}
+        className={`${handjet.variable} ${inputStyles} ${
+          error ? "border-red-500 focus:border-red-500" : ""
+        } ${className}`.trim()}
         {...props}
       />
+      {error ? (
+        <p className="text-[12px] leading-tight text-red-500">{error}</p>
+      ) : null}
     </div>
   );
 }

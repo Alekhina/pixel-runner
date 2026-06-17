@@ -2,6 +2,8 @@ export const DEBUG_HITBOXES = true;
 
 export const DISTANCE_GOAL = 5000;
 
+export const MILESTONE_POPUP_MS = 2500;
+
 export const CANVAS = { w: 360, h: 640 };
 
 export const PLAYER = {

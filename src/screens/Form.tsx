@@ -24,6 +24,7 @@ function Form({onClick}: Props) {
     });
     const [errors, setErrors] = useState<LeadFormErrors>({});
     const [submitted, setSubmitted] = useState(false);
+    const [touched, setTouched] = useState<Partial<Record<LeadFormField, boolean>>>({});
 
     const updateField = (field: LeadFormField, value: string | boolean) => {
         setValues((prev) => ({ ...prev, [field]: value }));
@@ -37,12 +38,30 @@ function Form({onClick}: Props) {
 
     const handleSubmit = () => {
         setSubmitted(true);
+        setTouched({
+            firstName: true,
+            lastName: true,
+            city: true,
+            phone: true,
+            consent: true,
+        });
         const nextErrors = validateLeadForm(values);
-        setErrors(nextErrors);
         if (Object.keys(nextErrors).length === 0) {
             onClick();
         }
     };
+
+    
+    const getError = (field: LeadFormField) => {
+        if (!submitted && !touched[field]) return undefined;
+        return validateLeadField(field, values);
+    };
+
+    const markTouched = (field: LeadFormField) => {
+        setTouched((prev) => ({ ...prev, [field]: true }));
+    };
+
+    const consentError = getError("consent");
 
     return (
         <div className="relative mx-auto h-[640px] w-[360px] overflow-hidden
@@ -72,7 +91,7 @@ function Form({onClick}: Props) {
                     />
                     Имя
                 </label>
-                <Input id="first-name" placeholder="Введи имя" value={values.firstName} error={errors.firstName} onChange={(e) => updateField("firstName", e.target.value)}></Input>
+                <Input id="first-name" placeholder="Введи имя" value={values.firstName} error={getError("firstName")} onBlur={() => markTouched("firstName")} onChange={(e) => updateField("firstName", e.target.value)}></Input>
 
                 <label htmlFor="last-name"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -85,7 +104,7 @@ function Form({onClick}: Props) {
                     />
                     Фамилия
                 </label>
-                <Input id="last-name" placeholder="Введи фамилию" value={values.lastName} error={errors.lastName} onChange={(e) => updateField("lastName", e.target.value)}></Input>
+                <Input id="last-name" placeholder="Введи фамилию" value={values.lastName} error={getError("lastName")} onBlur={() => markTouched("lastName")}  onChange={(e) => updateField("lastName", e.target.value)}></Input>
 
                 <label htmlFor="city"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -98,7 +117,7 @@ function Form({onClick}: Props) {
                     />
                     Город
                 </label>
-                <Input id="city" placeholder="Введи город" value={values.city} error={errors.city} onChange={(e) => updateField("city", e.target.value)}></Input>
+                <Input id="city" placeholder="Введи город" value={values.city} error={getError("city")} onBlur={() => markTouched("city")} onChange={(e) => updateField("city", e.target.value)}></Input>
 
                 <label htmlFor="phone"
                     className="flex w-full items-center gap-2 text-left text-cream-text"
@@ -111,18 +130,19 @@ function Form({onClick}: Props) {
                     />
                     Телефон
                 </label>
-                <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={errors.phone} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
+                <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={getError("phone")} onBlur={() => markTouched("phone")} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
 
                 <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left">
                     <input id="consent" type="checkbox" className="peer sr-only" checked={values.consent} onChange={(e) => updateField("consent", e.target.checked)}/>
                     <span
-                        className="
+                        className={
+                        `${consentError ? "border-red-500" : "border-cream-text"}
                         relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center
                         border-2 border-cream-text bg-transparent
                         peer-focus-visible:outline peer-focus-visible:outline-2
                         peer-focus-visible:outline-offset-2 peer-focus-visible:outline-custom-lime
-                        [&_img]:opacity-0 peer-checked:[&_img]:opacity-100
-                        "
+                        [&_img]:opacity-0 peer-checked:[&_img]:opacity-100`
+                    }
                         aria-hidden
                     >
                         <img
@@ -134,6 +154,9 @@ function Form({onClick}: Props) {
                     {/* <span className="mt-0.5 h-5 w-5 shrink-0 border-2 border-cream-text bg-transparent peer-checked:bg-custom-lime" /> */}
                     <span className="flex-1 text-left text-[12px] text-cream-text">я согласен (-а) с <a className="underline">политикой конфиденциальности</a> и обработки персональных данных</span>
                 </label>
+                {consentError ? (
+                    <p className="-mt-1 text-[12px] text-red-500">{consentError}</p>
+                ) : null}
 
                 <input
                     type="text"
@@ -146,7 +169,7 @@ function Form({onClick}: Props) {
                     onChange={(e) => updateField("honeypot", e.target.value)}
                 />
 
-                <Button disabled={!isLeadFormValid(values)} onClick={handleSubmit}>Активировать Driver Mode</Button>
+                <Button onClick={handleSubmit}>Активировать Driver Mode</Button>
             </div>
         </div>
     )

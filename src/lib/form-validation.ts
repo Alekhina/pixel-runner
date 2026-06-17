@@ -37,7 +37,7 @@ export function isValidPhone(value: string): boolean {
 function validateName(value: string, label: string): string | undefined {
   const trimmed = value.trim();
   if (!trimmed) return `Введи ${label}`;
-  if (!NAME_RE.test(trimmed)) return `${label} — только буквы, от 2 до 50 символов`;
+  if (!NAME_RE.test(trimmed)) return `Только буквы, от 2 до 50 символов`;
   return undefined;
 }
 
@@ -48,7 +48,7 @@ export function validateLeadField(field: LeadFormField, values: LeadFormFields):
     case "city": {
       const trimmed = values.city.trim();
       if (!trimmed) return "Введи город";
-      if (!CITY_RE.test(trimmed)) return "Город — от 2 до 100 символов";
+      if (!CITY_RE.test(trimmed)) return "От 2 до 100 символов";
       return undefined;
     }
     case "phone":

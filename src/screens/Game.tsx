@@ -3,8 +3,10 @@
 import { getDiscount } from "@/lib/discount";
 import { CharacterId } from "@/lib/characters";
 import { RUN_FRAMES } from "@/lib/characters";
+import { MILESTONE_POPUP_MS } from "@/game/config";
 import { CANVAS, PLAYER, SPEEDS } from "@/game/config";
 import { DISTANCE_GOAL } from "@/game/config";
+import { DISCOUNT_TIERS } from "@/lib/discount";
 import { drawFrame } from "@/game/draw";
 import { buildObstacles } from "@/game/state";
 import type { GameAssets, GameResult, GameState } from "@/game/types";
@@ -15,6 +17,7 @@ import { Handjet, Press_Start_2P } from "next/font/google";
 import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
+import Push from "@/components/Push";
 
 type Props = {
     character: CharacterId,
@@ -39,6 +42,28 @@ function loadImage(src: string): HTMLImageElement {
 
 function Game({ character, onComplete }: Props) {
     const [endResult, setEndResult] = useState<GameResult | null>(null);
+    const [milestonePopup, setMilestonePopup] = useState<{
+        km: number;
+        discount: number;
+        } | null>(null);
+
+        const showMilestoneRef = useRef<(km: number) => void>(() => {});
+
+        showMilestoneRef.current = (km: number) => {
+        setMilestonePopup({ km, discount: km }); // скидка = порог
+        };
+
+        // автоскрытие через 2.5 сек
+        useEffect(() => {
+        if (!milestonePopup) return;
+
+        const id = window.setTimeout(() => {
+            setMilestonePopup(null);
+        }, MILESTONE_POPUP_MS);
+
+        return () => clearTimeout(id);
+        }, [milestonePopup]);
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const distanceRef = useRef<HTMLSpanElement | null>(null);
     const progressRef = useRef<ProgressBarHandle | null>(null);
@@ -62,7 +87,7 @@ function Game({ character, onComplete }: Props) {
         
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        const bg = loadImage("/background-2.jpg");
+        const bg = loadImage("/background-2.png");
         const runFrames = RUN_FRAMES[character].map(loadImage);
         
         const assets: GameAssets = {
@@ -84,6 +109,9 @@ function Game({ character, onComplete }: Props) {
         let distance = 0;
         const JUMP_SPRITE_MS = 800;
         const jumpUp = 200;
+
+        const passedMilestones = new Set<number>();
+            // после distance += 0.5:
         
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.code === "ArrowUp") {
@@ -137,7 +165,14 @@ function Game({ character, onComplete }: Props) {
                 playerY = Math.min(playerY, PLAYER.groundY);
 
                 distance += 0.5;
-                // console.log(Math.floor(distance))
+                // console.log(Math.floor(distance))}
+                const currentKm = Math.floor(distance);
+                for (const tier of DISCOUNT_TIERS) {
+                    if (currentKm >= tier && !passedMilestones.has(tier)) {
+                        passedMilestones.add(tier);
+                        showMilestoneRef.current(tier);
+                    }
+                }
 
                 if (distanceRef.current) {
                     distanceRef.current.textContent = `${Math.floor(distance)}`;
@@ -195,13 +230,29 @@ function Game({ character, onComplete }: Props) {
     return (
         <div className="flex flex-col relative items-center justify-center">
             <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 backdrop-blur-md justify-center border-2 border-white">
-                <div id="hud-top" className="flex flex-row">
+                <div id="hud-top" className="flex flex-row gap-[16px]">
+                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md"><img src="./icon-id.svg"></img></div>
                     <div id="progress"  className="flex flex-col relative top-[0px]">
                         <div className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
                         <ProgressBar ref={progressRef} max={5000} className="relative top-[0px] mt-2" />
                     </div>
+                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md"><img src="./volume.svg" className="h-[16px] w-[16px]"></img></div>
+                </div>
+                <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
+                    <div className={`${handjet.className} text-cream-text`}>
+                        Попытка 1/3
+                    </div>
+                    <div className={`${handjet.className} text-cream-text`}>
+                        Рекорд
+                    </div>
                 </div>
             </div>
+            {milestonePopup && (
+                <Push
+                km={milestonePopup.km}
+                discount={milestonePopup.discount}
+                />
+            )}
             <Modal
                 open={endResult !== null}
                 onClose={() => {}}
