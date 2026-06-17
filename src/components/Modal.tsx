@@ -39,6 +39,13 @@ function Modal({
     if (!open) return null;
 
     return(
+        <>
+        <img
+            src="/modal-border.svg"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+        />
         <div
             className={`
             w-[328px] h-[480px]
@@ -58,6 +65,7 @@ function Modal({
             )}
             <div className="text-[10px] leading-relaxed">{children}</div>
         </div>
+        </>
     )
 }
 

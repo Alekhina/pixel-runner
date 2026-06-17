@@ -18,7 +18,7 @@ function CharacterMenu({value, onChange, onClick}: Props) {
     // const [character, setCharacter] = useState<CharacterId | null>(null);
 
     return (
-        <div className="flex justify-between min-h-screen w-[360px] h-[640px] mx-auto flex-col bg-[url('/bg-character-mobile.png')] bg-cover bg-center bg-no-repeat items-center pt-[62px] pb-[102px] px-[16px]">
+        <div className="flex justify-between w-[360px] h-[640px] mx-auto flex-col bg-[url('/bg-character-mobile.png')] bg-cover bg-center bg-no-repeat items-center pt-[62px] pb-[102px] px-[16px]">
             <div className="flex-col mx-auto text-center gap-[8px]">
                 <AccentText className="text-center uppercase text-[18px] text-white font-bold">Кто поведет тебя</AccentText>
                 <AccentText className="lowercase text-[18px]"> к Кибертраку?</AccentText>

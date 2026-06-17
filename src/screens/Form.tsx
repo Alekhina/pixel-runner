@@ -178,9 +178,19 @@ function Form({onClick}: Props) {
                     onChange={(e) => updateField("honeypot", e.target.value)}
                 />
 
-                <Button onClick={handleSubmit} >Активировать Driver Mode</Button>
+                <Button onClick={handleSubmit} disabled={!isLeadFormValid(values)}>Активировать Driver Mode</Button>
+                <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12
+                    bg-gradient-to-t from-black/20 to-transparent"
+                />
             </div>
             </div>
+            {/* <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12
+                bg-gradient-to-t from-black/70 to-transparent"
+            /> */}
         </div>
     )
 }
