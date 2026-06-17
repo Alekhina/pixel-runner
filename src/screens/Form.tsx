@@ -80,9 +80,10 @@ function Form({onClick}: Props) {
                 hide-scrollbar 
                 rounded-none
                 bg-black/10 backdrop-blur-md aria-hidden
+                pb-[32px]
                 "
             >
-            <div className="relative z-10 flex h-full flex-col items-stretch gap-2 pt-[24px] pb-[32px] px-[16px]">
+            <div className="relative z-10 flex flex-col items-stretch gap-2 pt-[24px] px-[16px]">
                 <p className="text-cream-text text-[16px] text-center">Чтобы выйти на старт, активируй</p>
                 <AccentText className="uppercase text-[24px] text-center">Driver Mode</AccentText>
 
@@ -177,7 +178,7 @@ function Form({onClick}: Props) {
                     onChange={(e) => updateField("honeypot", e.target.value)}
                 />
 
-                <Button onClick={handleSubmit}>Активировать Driver Mode</Button>
+                <Button onClick={handleSubmit} >Активировать Driver Mode</Button>
             </div>
             </div>
         </div>
