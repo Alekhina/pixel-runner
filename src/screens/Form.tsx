@@ -71,6 +71,7 @@ function Form({onClick}: Props) {
             src="/form-border.svg"
             alt=""
             aria-hidden
+            loading="lazy"
             className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
         />
             <div className="
@@ -93,6 +94,7 @@ function Form({onClick}: Props) {
                     <img
                         src="/icon-id.svg"
                         alt=""
+                        loading="lazy"
                         className="h-[16px] w-[16px] shrink-0"
                         aria-hidden
                     />
@@ -106,6 +108,7 @@ function Form({onClick}: Props) {
                     <img
                         src="/icon-id.svg"
                         alt=""
+                        loading="lazy"
                         className="h-[16px] w-[16px] shrink-0"
                         aria-hidden
                     />
@@ -119,6 +122,7 @@ function Form({onClick}: Props) {
                     <img
                         src="/icon-house.svg"
                         alt=""
+                        loading="lazy"
                         className="h-[16px] w-[16px] shrink-0"
                         aria-hidden
                     />
@@ -132,6 +136,7 @@ function Form({onClick}: Props) {
                     <img
                         src="/icon-phone.svg"
                         alt=""
+                        loading="lazy"
                         className="h-[16px] w-[16px] shrink-0"
                         aria-hidden
                     />
@@ -156,6 +161,7 @@ function Form({onClick}: Props) {
                         <img
                         src="/check.svg"
                         alt=""
+                        loading="lazy"
                         className="h-4 w-4 transition-opacity duration-150"
                         />
                     </span>
@@ -178,7 +184,9 @@ function Form({onClick}: Props) {
                     onChange={(e) => updateField("honeypot", e.target.value)}
                 />
 
-                <Button onClick={handleSubmit} disabled={!isLeadFormValid(values)}>Активировать Driver Mode</Button>
+                {/* <Button onClick={handleSubmit} disabled={!isLeadFormValid(values)}>Активировать Driver Mode</Button> */}
+                <Button onClick={handleSubmit}>Активировать Driver Mode</Button>
+                
                 <div
                     aria-hidden
                     className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-12

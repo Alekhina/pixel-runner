@@ -1,4 +1,4 @@
-export const DEBUG_HITBOXES = true;
+export const DEBUG_HITBOXES = false;
 
 export const DISTANCE_GOAL = 5000;
 
@@ -6,19 +6,28 @@ export const MILESTONE_POPUP_MS = 2500;
 
 export const CANVAS = { w: 360, h: 640 };
 
+export const CHUNK_WIDTH = 900;
+export const MIN_GROUND_GAP = 180;   // подогнать по jump + speed
+export const MIN_CHUNK_GAP = 400;    // «пустой» отдых между чанками
+export const SPAWN_AHEAD_X = 400;    // спавн за правым краем canvas (360)
+export const DESPAWN_BEHIND_X = -120;
+export const MIN_PIT_GAP = 320;
+
 export const PLAYER = {
-    x: 30,
-    drawW: 150,
-    drawH: 150,
-    groundY: 270,
+    x: -10,
+    drawW: 144,
+    drawH: 144,
+    groundY: 360,
     hitbox: { insetX: 40, insetY: 20, w: 60, h: 110 },
     jumpVY: -20,
     gravity: 1,
 };
 
 export const SPEEDS = {
-    bg: 40,
+    bg: 60,
+    bgMax: 84,
     obstacles: 300,
+    obstaclesMax: 450,
 };
 
 export const OBSTACLE_LAYOUT = [

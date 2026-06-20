@@ -18,6 +18,8 @@ import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 import Modal from "@/components/Modal";
 import Button from "@/components/Button";
 import Push from "@/components/Push";
+import { initObstacleWorld, updateObstacles } from "@/game/update";
+import { getObstacleSpeed, getBgSpeed } from "@/game/speeds";
 
 type Props = {
     character: CharacterId,
@@ -87,11 +89,16 @@ function Game({ character, onComplete }: Props) {
         
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         
-        const bg = loadImage("/background-2.png");
+        const backgrounds = [
+            loadImage("/bg-day.png"),
+            loadImage("/bg-evening.png"),
+            loadImage("/bg-night.png"),
+        ]
+
         const runFrames = RUN_FRAMES[character].map(loadImage);
         
         const assets: GameAssets = {
-            bg,
+            backgrounds,
             runFrames,
             obstacles: {
                 konus: loadImage("/konus.png"),
@@ -99,6 +106,8 @@ function Game({ character, onComplete }: Props) {
                 lake: loadImage("/lake.png"),
                 hole: loadImage("/hole.png"),
                 stop: loadImage("/stop.png"),
+                repair: loadImage("/repair.png"),
+                heap: loadImage("./heap.png"),
             }
         }
         
@@ -111,13 +120,14 @@ function Game({ character, onComplete }: Props) {
         const jumpUp = 200;
 
         const passedMilestones = new Set<number>();
-            // после distance += 0.5:
         
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.code === "ArrowUp") {
                 e.preventDefault();
-                playerVY = PLAYER.jumpVY;
-                jumpUntil = performance.now() + JUMP_SPRITE_MS;
+                if (playerY >= PLAYER.groundY) {
+                    playerVY = PLAYER.jumpVY;
+                    jumpUntil = performance.now() + JUMP_SPRITE_MS;
+                }
             }
         };
         
@@ -133,16 +143,14 @@ function Game({ character, onComplete }: Props) {
 
         let rafId = 0;
 
-        bg.onload = () => {
+        backgrounds[0].onload = () => {
             let last = performance.now();
+            let bgIndex = 0;
             let bgOffset = 0;
             let barrierX = 350;
-            let bgSpeed = SPEEDS.bg;
-            let barrierSpeed = SPEEDS.obstacles;
             let delta_t = 1;
             let g = PLAYER.gravity;
-            const scale = h / bg.naturalHeight;
-            const bgW = bg.naturalWidth * scale;
+            let obstacleWorld = initObstacleWorld();
 
             const loop = (now: number) => {
                 if (status !== "playing") {
@@ -153,19 +161,28 @@ function Game({ character, onComplete }: Props) {
                     return;
                 }
 
-                // console.log("tick", playerY, status);
+                const bgSpeed = getBgSpeed(distance);
+                const barrierSpeed = getObstacleSpeed(distance);
 
                 const dt = Math.min((now - last) / 1000, 0.05);
                 last = now;
-                bgOffset = (bgOffset + bgSpeed * dt) % bgW;
-                barrierX = (barrierX - barrierSpeed * dt) % bgW;
+                const bg = assets.backgrounds[bgIndex];
+                const bgW = bg.naturalWidth * (h / bg.naturalHeight);
+                bgOffset += bgSpeed * dt;
+
+                if (bgOffset >= bgW && bgIndex < assets.backgrounds.length - 1) {
+                    bgOffset -= bgW;
+                    bgIndex += 1;
+                }
+
+                const scrollDelta = barrierSpeed * dt;
+                obstacleWorld = updateObstacles(obstacleWorld, scrollDelta, distance);
                 
                 playerVY += g * delta_t;
                 playerY += playerVY * delta_t;
                 playerY = Math.min(playerY, PLAYER.groundY);
 
                 distance += 0.5;
-                // console.log(Math.floor(distance))}
                 const currentKm = Math.floor(distance);
                 for (const tier of DISCOUNT_TIERS) {
                     if (currentKm >= tier && !passedMilestones.has(tier)) {
@@ -181,7 +198,6 @@ function Game({ character, onComplete }: Props) {
 
                 if (distance >= DISTANCE_GOAL) {
                     status = "won";
-                    // onEndRef.current({
                     setEndResult({
                         distance: DISTANCE_GOAL,
                         character,
@@ -195,14 +211,14 @@ function Game({ character, onComplete }: Props) {
                     playerY,
                     playerVY,
                     groundY: PLAYER.groundY,
-                    obstacles: buildObstacles(barrierX),
+                    obstacles: obstacleWorld.obstacles,
                     distance, 
+                    bgIndex,
                     bgOffset,
                 }
 
                 if (status === "playing" && isColliding(state)) {
                     status = "crashed";
-                    // onEndRef.current({
                     setEndResult({
                         distance: distance,
                         character,
@@ -227,16 +243,38 @@ function Game({ character, onComplete }: Props) {
         };
     }, [character]);
 
+    let characterIcon = "./kodik-icon.svg";
+    if (character === "vekta") {
+        characterIcon = "./vecta-icon.svg"
+    }
+
     return (
         <div className="flex flex-col relative items-center justify-center">
-            <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 backdrop-blur-md justify-center border-2 border-white">
+            <img src="./hud-border.svg"
+                alt=""
+                aria-hidden
+                className="pointer-events-none absolute top-5 z-[1]"
+            ></img>
+            <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 rounded-2xl backdrop-blur-md justify-center z-[0]">
                 <div id="hud-top" className="flex flex-row gap-[16px]">
-                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md"><img src="./icon-id.svg"></img></div>
+                    <img 
+                        src="./hud-small-border.svg"
+                        alt=""
+                        aria-hidden
+                        className="pointer-events-none absolute top-4 z-[1]"
+                    ></img>
+                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src={characterIcon}></img></div>
                     <div id="progress"  className="flex flex-col relative top-[0px]">
                         <div className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
                         <ProgressBar ref={progressRef} max={5000} className="relative top-[0px] mt-2" />
                     </div>
-                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md"><img src="./volume.svg" className="h-[16px] w-[16px]"></img></div>
+                    <img 
+                        src="./hud-small-border.svg"
+                        alt=""
+                        aria-hidden
+                        className="pointer-events-none absolute top-4 left-70 z-[2]"
+                    ></img>
+                    <div className="flex items-center justify-center h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src="./volume.svg" className="h-[16px] w-[16px]"></img></div>
                 </div>
                 <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
                     <div className={`${handjet.className} text-cream-text`}>
@@ -257,7 +295,7 @@ function Game({ character, onComplete }: Props) {
                 open={endResult !== null}
                 onClose={() => {}}
                 title={endResult?.reason === "victory" ? "Победа!" : "Заезд завершен!"}
-                className="absolute b-[130px]"
+                className="absolute b-[130px] z-[2]"
             >
                 {endResult && (
                 <>

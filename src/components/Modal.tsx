@@ -44,12 +44,14 @@ function Modal({
             src="/modal-border.svg"
             alt=""
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+            loading="lazy"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[3] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
         />
         <div
             className={`
             w-[328px] h-[480px]
-            bg-black/30 backdrop-blur-md        
+            bg-black/30 backdrop-blur-md   
+            rounded-4xl     
             p-4
             ${className}
             `.trim()}

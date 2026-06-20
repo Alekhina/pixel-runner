@@ -20,7 +20,7 @@ export type Obstacle = {
 export type GameStatus = "playing" | "crashed" | "won";
 export type GameEndReason = "crash" | "victory";
 
-export type ObstacleKind = "konus" | "lake" | "hole" | "stop" | "exam";
+export type ObstacleKind = "konus" | "lake" | "hole" | "stop" | "exam" | "repair" | "heap";
 
 export type GameState = {
     status: GameStatus;
@@ -29,6 +29,7 @@ export type GameState = {
     groundY: number;
     obstacles: Obstacle[];
     distance: number; 
+    bgIndex: number;
     bgOffset: number;
     // jumpUntil: number;
     // elapsed: number;
@@ -40,7 +41,12 @@ export type GameResult = {
 };
 
 export type GameAssets = {
-    bg: HTMLImageElement;
+    backgrounds: HTMLImageElement[];
     runFrames: HTMLImageElement[];
     obstacles: Record<ObstacleKind, HTMLImageElement>;
+};
+
+export type ChunkSpawnItem = {
+    kind: ObstacleKind;
+    offsetX: number;
 };

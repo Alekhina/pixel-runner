@@ -1,10 +1,15 @@
 "use client";
 
-import { Press_Start_2P } from "next/font/google";
+import { Handjet, Press_Start_2P } from "next/font/google";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
+});
+
+const handjet = Handjet({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-handjet",
 });
 
 type Props = {
@@ -14,12 +19,12 @@ type Props = {
 
 function Push({ km, discount }: Props) {
   return (
-    <div className="pointer-events-none absolute top-[140px] z-40 w-[328px] border-2 border-white bg-black/40 backdrop-blur-md px-4 py-3 text-center">
-      <p className={`${pressStart2P.className} text-[14px] text-custom-yellow`}>
-        {km} км!
+    <div className="pointer-events-none absolute top-[140px] z-40 w-[328px] border-2 border-white bg-black/20 backdrop-blur-md px-4 py-3 text-center">
+      <p className={`${handjet.className} text-[16px] text-custom-yellow`}>
+        Driver mode загружается.
       </p>
-      <p className={`${pressStart2P.className} mt-2 text-[10px] text-white`}>
-        Открыта скидка {discount} ₽
+      <p className={`${handjet.className} mt-2 text-[16px] text-white`}>
+        Cкидка {discount} ₽ открыта.
       </p>
     </div>
   );

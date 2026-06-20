@@ -1,6 +1,6 @@
 import { GameState } from "./types";
 import { GameAssets } from "./types";
-import { DEBUG_HITBOXES } from "./config";
+import { DEBUG_HITBOXES, PLAYER } from "./config";
 import { Area } from "./types";
 import { getPlayerHitbox } from "./collision";
 
@@ -20,10 +20,13 @@ function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: 
     const w = 360;
     const h = 640;
     const x1 = - state.bgOffset;
-    const scale = h / assets.bg.naturalHeight;
-    const bgW = assets.bg.naturalWidth * scale;
-    ctx.drawImage(assets.bg, x1, 0, bgW, h);
-    ctx.drawImage(assets.bg, x1 + bgW, 0, bgW, h);
+    const bg = assets.backgrounds[state.bgIndex];
+    if (!bg) return;
+
+    const scale = h / bg.naturalHeight;
+    const bgW = bg.naturalWidth * scale;
+    ctx.drawImage(bg, x1, 0, bgW, h);
+    ctx.drawImage(bg, x1 + bgW, 0, bgW, h);
 }
 
 function drawObstacles(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
@@ -57,10 +60,10 @@ function drawPlayer(ctx:CanvasRenderingContext2D, state: GameState, assets: Game
     
     ctx.drawImage(
         characterDraw,
-        30,
+        PLAYER.x,
         state.playerY,
-        150,
-        150
+        PLAYER.drawW,
+        PLAYER.drawH,
     );
 }
 
