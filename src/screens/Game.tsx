@@ -24,6 +24,7 @@ import { getObstacleSpeed, getBgSpeed } from "@/game/speeds";
 type Props = {
     character: CharacterId,
     onComplete: (result: GameResult) => void,
+    onClick: () => void,
 }
 
 const handjet = Handjet({
@@ -42,8 +43,9 @@ function loadImage(src: string): HTMLImageElement {
   return img;
 }
 
-function Game({ character, onComplete }: Props) {
+function Game({ character, onComplete, onClick }: Props) {
     const [endResult, setEndResult] = useState<GameResult | null>(null);
+    const [runKey, setRunKey] = useState(0);
     const [milestonePopup, setMilestonePopup] = useState<{
         km: number;
         discount: number;
@@ -65,6 +67,12 @@ function Game({ character, onComplete }: Props) {
 
         return () => clearTimeout(id);
         }, [milestonePopup]);
+
+    const handleRetry = () => {
+        setEndResult(null);
+        setMilestonePopup(null);
+        setRunKey((k) => k + 1);
+    };
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const distanceRef = useRef<HTMLSpanElement | null>(null);
@@ -241,7 +249,7 @@ function Game({ character, onComplete }: Props) {
             window.removeEventListener("keydown", onKeyDown);
             canvas.removeEventListener("pointerdown", onPointerDown);
         };
-    }, [character]);
+    }, [character, runKey]);
 
     let characterIcon = "./kodik-icon.svg";
     if (character === "vekta") {
@@ -321,7 +329,7 @@ function Game({ character, onComplete }: Props) {
                         <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки</p>
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>2</p>
                     </div>
-                    <Button className="w-full text-black text-[16px]" onClick={() => {}}>
+                    <Button className="w-full text-black text-[16px]" onClick={handleRetry}>
                         Попробовать еще
                     </Button>
                     <Button className="w-full text-black text-[16px]" onClick={() => {}}>

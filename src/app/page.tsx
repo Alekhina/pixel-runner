@@ -45,7 +45,8 @@ export default function Home() {
           return character ? <Game character={character} onComplete={() => {
             // setGameResult(result);
             setScreen("completion");
-          }}></Game> : null;
+          }}
+          onClick={() => {setScreen("game")}}></Game> : null;
         case "completion":
           return <Completion onClick={() => {setScreen("game")}}></Completion>;
         case "victory":
