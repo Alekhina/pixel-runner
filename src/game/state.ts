@@ -26,5 +26,6 @@ export function createInitialState(): GameState {
         distance: 0,
         bgIndex: 0,
         bgOffset: 0,
+        roadOffset: 0,
     };
 }

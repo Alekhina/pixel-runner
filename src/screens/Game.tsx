@@ -103,11 +103,14 @@ function Game({ character, onComplete, onClick }: Props) {
             loadImage("/bg-night.png"),
         ]
 
+        const road = loadImage("/road.png");
+
         const runFrames = RUN_FRAMES[character].map(loadImage);
         
         const assets: GameAssets = {
             backgrounds,
             runFrames,
+            road,
             obstacles: {
                 konus: loadImage("/konus.png"),
                 exam: loadImage("/exam.png"),
@@ -125,7 +128,6 @@ function Game({ character, onComplete, onClick }: Props) {
         let jumpUntil = 0;
         let distance = 0;
         const JUMP_SPRITE_MS = 800;
-        const jumpUp = 200;
 
         const passedMilestones = new Set<number>();
         
@@ -155,6 +157,7 @@ function Game({ character, onComplete, onClick }: Props) {
             let last = performance.now();
             let bgIndex = 0;
             let bgOffset = 0;
+            let roadOffset = 0;
             let barrierX = 350;
             let delta_t = 1;
             let g = PLAYER.gravity;
@@ -184,6 +187,7 @@ function Game({ character, onComplete, onClick }: Props) {
                 }
 
                 const scrollDelta = barrierSpeed * dt;
+                roadOffset += scrollDelta;
                 obstacleWorld = updateObstacles(obstacleWorld, scrollDelta, distance);
                 
                 playerVY += g * delta_t;
@@ -223,6 +227,7 @@ function Game({ character, onComplete, onClick }: Props) {
                     distance, 
                     bgIndex,
                     bgOffset,
+                    roadOffset,
                 }
 
                 if (status === "playing" && isColliding(state)) {
@@ -236,7 +241,7 @@ function Game({ character, onComplete, onClick }: Props) {
                     return;
                 }
                 
-                drawFrame(ctx, state, assets, now);          
+                drawFrame(ctx, state, assets, now);
                 rafId = requestAnimationFrame(loop);
             };
 

@@ -11,6 +11,7 @@ export function drawFrame(
     now: number,
 ): void {
     drawBackground(ctx, state, assets);
+    drawRoad(ctx, state, assets); 
     drawObstacles(ctx, state, assets);
     drawPlayer(ctx, state, assets, now);
     drawDebugHitboxes(ctx, state);
@@ -28,6 +29,20 @@ function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: 
     ctx.drawImage(bg, x1, 0, bgW, h);
     ctx.drawImage(bg, x1 + bgW, 0, bgW, h);
 }
+
+function drawRoad(ctx: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
+    const road = assets.road;
+    if (!road?.naturalHeight) return;
+    const h = 680;
+    const canvasH = 640;
+    const scale = h / road.naturalHeight;
+    const roadW = road.naturalWidth * scale;
+    const roadY = canvasH - h;
+    const x1 = -(state.roadOffset % roadW);
+    ctx.drawImage(road, x1, roadY, roadW, h);
+    ctx.drawImage(road, x1 + roadW, roadY, roadW, h);
+}
+
 
 function drawObstacles(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
     const obstacles = state.obstacles;;

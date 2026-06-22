@@ -31,6 +31,7 @@ export type GameState = {
     distance: number; 
     bgIndex: number;
     bgOffset: number;
+    roadOffset: number;
     // jumpUntil: number;
     // elapsed: number;
 };
@@ -42,6 +43,7 @@ export type GameResult = {
 
 export type GameAssets = {
     backgrounds: HTMLImageElement[];
+    road: HTMLImageElement;
     runFrames: HTMLImageElement[];
     obstacles: Record<ObstacleKind, HTMLImageElement>;
 };
