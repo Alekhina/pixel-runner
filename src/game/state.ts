@@ -24,6 +24,7 @@ export function createInitialState(): GameState {
         groundY: PLAYER.groundY,
         obstacles: buildObstacles(INITIAL_BARRIER_X),
         distance: 0,
+        bgIndex: 0,
         bgOffset: 0,
     };
 }
