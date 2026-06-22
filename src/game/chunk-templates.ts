@@ -20,41 +20,59 @@ function after(
 }
 
 export const CHUNK_TEMPLATES: ChunkTemplate[] = [
-//   {
-//     id: "rest",
-//     minKm: 0,
-//     weight: 2,
-//     items: [],
-//   },
   {
-    id: "solo-konus-center",
+    id: "double-konus",
     minKm: 0,
     weight: 5,
-    items: [{ kind: "konus", offsetX: 420 }],
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "konus", MIN_GROUND_GAP + 150)];
+    })(),
   },
   {
-    id: "solo-lake",
-    minKm: 100,
-    weight: 3,
-    items: [{ kind: "lake", offsetX: 400 }],
+    id: "double-konus-2",
+    minKm: 0,
+    weight: 5,
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "konus", MIN_GROUND_GAP + 200)];
+    })(),
   },
   {
-    id: "double-hole",
-    minKm: 100,
+    id: "double-konus-3",
+    minKm: 200,
+    weight: 5,
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "konus", MIN_GROUND_GAP)];
+    })(),
+  },
+  {
+    id: "lake-then-konus",
+    minKm: 150,
     weight: 3,
     items: [
-      { kind: "hole", offsetX: 220 },
-      { kind: "hole", offsetX: 220 + 72 + MIN_PIT_GAP }, // 588
+      { kind: "lake", offsetX: 400 },
+      { kind: "konus", offsetX: 220 + 140 + MIN_PIT_GAP }
     ],
   },
   {
-    id: "double-konus",
+    id: "double-lake",
     minKm: 150,
-    weight: 4,
-    items: (() => {
-        const stop = { kind: "stop" as const, offsetX: 200 };
-        return [stop, after(stop, "konus", MIN_GROUND_GAP)];
-    })(),
+    weight: 3,
+    items: [
+      { kind: "lake", offsetX: 400 },
+      { kind: "lake", offsetX: 220 + 110 + MIN_PIT_GAP }
+    ],
+  },
+  {
+    id: "repair-then-hole",
+    minKm: 500,
+    weight: 3,
+    items: [
+      { kind: "repair", offsetX: 220 },
+      { kind: "hole", offsetX: 220 + 72 + MIN_PIT_GAP },
+    ],
   },
   {
     id: "konus-then-lake",
@@ -62,21 +80,21 @@ export const CHUNK_TEMPLATES: ChunkTemplate[] = [
     weight: 3,
     items: [
       { kind: "konus", offsetX: 120 },
-      { kind: "lake", offsetX: 120 + 60 + MIN_PIT_GAP },     // 500 при gap=320
+      { kind: "lake", offsetX: 120 + 60 + MIN_PIT_GAP },
     ],
   },
   {
-    id: "double",
-    minKm: 150,
+    id: "repair-then-heap",
+    minKm: 400,
     weight: 4,
     items: [
       { kind: "repair", offsetX: 180 },
-      { kind: "heap", offsetX: 180 + 70 + MIN_GROUND_GAP }, // 520 при gap=280
+      { kind: "heap", offsetX: 180 + 70 + MIN_GROUND_GAP },
     ],
   },
   {
     id: "stop-then-konus",
-    minKm: 500,
+    minKm: 400,
     weight: 2,
     items: [{ kind: "stop", offsetX: 380 },
             { kind: "konus", offsetX: 120 + 60 + MIN_PIT_GAP }
@@ -84,12 +102,13 @@ export const CHUNK_TEMPLATES: ChunkTemplate[] = [
   },
   {
     id: "triple-light",
-    minKm: 600,
+    minKm: 1000,
     weight: 2,
-    items: [
-      { kind: "hole", offsetX: 100 },
-      { kind: "konus", offsetX: 100 + 60 + MIN_GROUND_GAP },
-      { kind: "lake", offsetX: 100 + 60 + MIN_GROUND_GAP + 60 + MIN_PIT_GAP },
-    ],
+    items: (() => {
+      const hole = { kind: "hole" as const, offsetX: 100 };
+      const konus = after(hole, "konus", MIN_GROUND_GAP);
+      const lake = after(konus, "lake", MIN_PIT_GAP);
+      return [hole, konus, lake];
+    })(),
   },
 ];

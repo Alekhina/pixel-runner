@@ -32,8 +32,6 @@ export type GameState = {
     bgIndex: number;
     bgOffset: number;
     roadOffset: number;
-    // jumpUntil: number;
-    // elapsed: number;
 };
 export type GameResult = {
     distance: number;

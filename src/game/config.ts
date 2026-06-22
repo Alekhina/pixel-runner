@@ -6,9 +6,9 @@ export const MILESTONE_POPUP_MS = 2500;
 
 export const CANVAS = { w: 360, h: 640 };
 
-export const CHUNK_WIDTH = 900;
-export const MIN_GROUND_GAP = 180;   // подогнать по jump + speed
-export const MIN_CHUNK_GAP = 400;    // «пустой» отдых между чанками
+export const CHUNK_WIDTH = 860;
+export const MIN_GROUND_GAP = 150;   // подогнать по jump + speed
+export const MIN_CHUNK_GAP = 300;    // «пустой» отдых между чанками
 export const SPAWN_AHEAD_X = 400;    // спавн за правым краем canvas (360)
 export const DESPAWN_BEHIND_X = -120;
 export const MIN_PIT_GAP = 320;
@@ -18,7 +18,7 @@ export const PLAYER = {
     drawW: 160,
     drawH: 160,
     groundY: 360,
-    hitbox: { insetX: 40, insetY: 20, w: 60, h: 110 },
+    hitbox: { insetX: 55, insetY: 20, w: 50, h: 120 },
     jumpVY: -20,
     gravity: 1,
 };
