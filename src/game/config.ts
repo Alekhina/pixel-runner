@@ -15,8 +15,8 @@ export const MIN_PIT_GAP = 320;
 
 export const PLAYER = {
     x: -10,
-    drawW: 144,
-    drawH: 144,
+    drawW: 160,
+    drawH: 160,
     groundY: 360,
     hitbox: { insetX: 40, insetY: 20, w: 60, h: 110 },
     jumpVY: -20,

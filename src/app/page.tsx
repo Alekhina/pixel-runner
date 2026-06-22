@@ -34,12 +34,12 @@ export default function Home() {
   return (
     <>
       {(() => {switch (screen) {
-        case "start":
-          return <Start onClick={() => {setScreen("form")}}></Start>;
-        case "form":
-          return <Form onClick={() => {setScreen("character")}}></Form>;
-        case "character":
         // case "start":
+        //   return <Start onClick={() => {setScreen("form")}}></Start>;
+        // case "form":
+        //   return <Form onClick={() => {setScreen("character")}}></Form>;
+        // case "character":
+        case "start":
           return <CharacterMenu value={character} onChange={setCharacter} onClick={() => {setScreen("game")}}></CharacterMenu>;
         case "game":
           return character ? <Game character={character} onComplete={() => {

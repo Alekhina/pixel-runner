@@ -12,7 +12,7 @@ export type ObstacleDef = {
 };
 
 export const OBSTACLE_DEFS: Record<ObstacleKind, ObstacleDef> = {
-  konus: { kind: "konus", w: 48, h: 48, y: 445, lane: "ground" },
+  konus: { kind: "konus", w: 64, h: 64, y: 445, lane: "ground" },
   stop:  { kind: "stop",  w: 48, h: 120, y: 380, lane: "ground" },
   exam:  { kind: "exam",  w: 48, h: 96,  y: 425, lane: "air" },
   lake:  { kind: "lake",  w: 72, h: 24,  y: 475, lane: "pit" },
