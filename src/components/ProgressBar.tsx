@@ -29,7 +29,7 @@ const ProgressBar = forwardRef<ProgressBarHandle, Props>(function ProgressBar(
 
     return (
         <>
-            <div className={`h-[10px] w-[200px] bg-white/10 overflow-hidden backdrop-blur-md rounded-full ${className}`.trim()}>
+            <div className={`h-[10px] w-[200px] bg-white/40 overflow-hidden backdrop-blur-md rounded-full ${className}`.trim()}>
                 <div ref={fillRef} className="h-full w-0 rounded-full bg-custom-yellow" />
             </div>
         </>

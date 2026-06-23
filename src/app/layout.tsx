@@ -2,10 +2,16 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Press_Start_2P } from "next/font/google";
+import { Onest } from "next/font/google";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
+});
+
+const onest = Onest({
+  subsets: ["latin", "cyrillic"],
+  variable: "--font-onest",
 });
 
 export const metadata: Metadata = {
@@ -20,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`h-full antialiased ${pressStart2P.className}`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="ru" className={`h-full antialiased ${onest.className}`}>
+      <body className={`${onest.className} min-h-full flex flex-col`}>{children}</body>
     </html>
   );
 }

@@ -210,7 +210,7 @@ function Game({ character, onComplete, onClick }: Props) {
 
                 if (distance >= DISTANCE_GOAL) {
                     status = "won";
-                    setEndResult({
+                    onEndRef.current({
                         distance: DISTANCE_GOAL,
                         character,
                         reason: "victory",
@@ -261,7 +261,7 @@ function Game({ character, onComplete, onClick }: Props) {
         characterIcon = "./vecta-icon.svg"
     }
 
-    const isModalOpen = endResult !== null;
+    const isModalOpen = endResult?.reason === "crash";
 
     return (
         <div className="flex flex-col relative items-center justify-center">
@@ -295,10 +295,10 @@ function Game({ character, onComplete, onClick }: Props) {
                         </div>
                         <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
                             <div className={`${handjet.className} text-cream-text`}>
-                                Попытка 1/3
+                                Попытка: <span className={`${pressStart2P.className} text-[10px]`}>1/3</span>
                             </div>
                             <div className={`${handjet.className} text-cream-text`}>
-                                Рекорд
+                                Рекорд: <span className={`${pressStart2P.className} text-[10px]`}>1024</span>
                             </div>
                         </div>
                     </div>
@@ -311,9 +311,9 @@ function Game({ character, onComplete, onClick }: Props) {
                 />
             )}
             <Modal
-                open={endResult !== null}
+                open={isModalOpen}
                 onClose={() => {}}
-                title={endResult?.reason === "victory" ? "Победа!" : "Заезд завершен!"}
+                title="Заезд завершен!"
                 className="absolute b-[130px]"
             >
                 {endResult && (

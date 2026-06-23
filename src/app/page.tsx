@@ -34,22 +34,26 @@ export default function Home() {
   return (
     <>
       {(() => {switch (screen) {
-        // case "start":
-        //   return <Start onClick={() => {setScreen("form")}}></Start>;
-        // case "form":
-        //   return <Form onClick={() => {setScreen("character")}}></Form>;
-        // case "character":
         case "start":
+          return <Start onClick={() => {setScreen("form")}}></Start>;
+        case "form":
+          return <Form onClick={() => {setScreen("character")}}></Form>;
+        case "character":
+        // case "start":
           return <CharacterMenu value={character} onChange={setCharacter} onClick={() => {setScreen("game")}}></CharacterMenu>;
         case "game":
-          return character ? <Game character={character} onComplete={() => {
-            // setGameResult(result);
-            setScreen("completion");
+          return character ? <Game character={character} onComplete={(result) => {
+            setGameResult(result);
+            if (result.reason === "victory") {
+              setScreen("victory");
+            }
+            // setScreen("completion");
           }}
           onClick={() => {setScreen("game")}}></Game> : null;
         case "completion":
           return <Completion onClick={() => {setScreen("game")}}></Completion>;
         case "victory":
+        // case "start":
           return <Victory></Victory>;
         default:
           return null;
