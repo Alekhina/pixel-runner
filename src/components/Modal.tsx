@@ -60,7 +60,7 @@ function Modal({
             {title && (
             <h2
                 id="modal-title"
-                className={`mb-4 text-center ${pressStart2P.className} text-[24px] text-custom-lime`}
+                className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] text-custom-lime`}
             >
                 {title}
             </h2>

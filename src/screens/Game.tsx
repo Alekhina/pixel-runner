@@ -312,35 +312,73 @@ function Game({ character, onComplete, onClick }: Props) {
             >
                 {endResult && (
                 <>
-                    <p className="mb-4 text-[16px] text-center text-cream-text">
+                    <p className="text-[16px] leading-[16px] text-center text-cream-text">
                         Ты прошел {Math.floor(endResult.distance)} км.
+                    </p>
+                    <p className="mb-4 leading-[16px] text-[16px] text-center text-cream-text">
                         {getDiscount(endResult.distance) > 0
                             ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`
                             : " Скидка пока не открыта."}
                     </p>
-                    <div className="flex justify-between">
-                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Текущая попытка</p>
+                    <div className="flex items-end justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Текущая попытка:</p>
+                        <span
+                            className="mb-3 min-w-1 flex-1 bg-repeat-x text-cream-text"
+                            style={{
+                                height: '2px',
+                                backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1.5px)',
+                                backgroundSize: '8px 1px',
+                            }}
+                            aria-hidden
+                        />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>1/3</p>
                     </div>
-                    <div className="flex justify-between">
-                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Лучший результат</p>
+                    <div className="flex items-end justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Лучший результат:</p>
+                        <span
+                            className="mb-3 min-w-1 flex-1 bg-repeat-x text-cream-text"
+                            style={{
+                                height: '2px',
+                                backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1.5px)',
+                                backgroundSize: '8px 1px',
+                            }}
+                            aria-hidden
+                        />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{Math.floor(endResult.distance)} км</p>
                     </div>
-                    <div className="flex justify-between">
-                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Доступная скидка</p>
+                    <div className="flex items-end justify-between">
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Доступная скидка:</p>
+                        <span
+                            className="mb-3 min-w-1 flex-1 bg-repeat-x text-cream-text"
+                            style={{
+                                height: '2px',
+                                backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1.5px)',
+                                backgroundSize: '8px 1px',
+                            }}
+                            aria-hidden
+                        />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{getDiscount(endResult.distance)} ₽</p>
                     </div>
-                    <div className="flex justify-between">                
-                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки</p>
+                    <div className="flex mb-5 items-end justify-between">                
+                        <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки:</p>
+                        <span
+                            className="mb-3 min-w-1 flex-1 bg-repeat-x text-cream-text"
+                            style={{
+                                height: '2px',
+                                backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1.5px)',
+                                backgroundSize: '8px 1px',
+                            }}
+                            aria-hidden
+                        />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>2</p>
                     </div>
-                    <Button className="w-full text-black text-[16px]" onClick={handleRetry}>
-                        Попробовать еще
+                    <Button className="mb-2 w-full text-black text-[16px]" onClick={handleRetry}>
+                        Новый заезд
                     </Button>
-                    <Button className="w-full text-black text-[16px]" onClick={() => {}}>
+                    <Button variant="secondary" className="mb-3 w-full bg-cream-text text-black text-[16px]" onClick={() => {}}>
                         Забрать скидку
                     </Button>
-                    <p className="text-cream-text text-[12px]">Условия скидки: 7 дней, не суммируется, один номер - один промокод</p>
+                    <p className="text-cream-text leading-[14px] text-[12px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>
                 </>
                 )}
             </Modal>
