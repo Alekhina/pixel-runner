@@ -261,43 +261,49 @@ function Game({ character, onComplete, onClick }: Props) {
         characterIcon = "./vecta-icon.svg"
     }
 
+    const isModalOpen = endResult !== null;
+
     return (
         <div className="flex flex-col relative items-center justify-center">
-            <img src="./hud-border.svg"
-                alt=""
-                aria-hidden
-                className="pointer-events-none absolute top-5 z-[1]"
-            ></img>
-            <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 rounded-2xl backdrop-blur-md justify-center z-[0]">
-                <div id="hud-top" className="flex flex-row gap-[16px]">
-                    <img 
-                        src="./hud-small-border.svg"
+            {!isModalOpen && (
+                <>
+                    <img src="./hud-border.svg"
                         alt=""
                         aria-hidden
-                        className="pointer-events-none absolute top-4 z-[1]"
+                        className="pointer-events-none absolute top-5 z-[1]"
                     ></img>
-                    <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src={characterIcon}></img></div>
-                    <div id="progress"  className="flex flex-col relative top-[0px]">
-                        <div className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
-                        <ProgressBar ref={progressRef} max={5000} className="relative top-[0px] mt-2" />
+                    <div id="hud" className="flex flex-col absolute top-[20px] items-center h-[90px] w-[328px] bg-black/20 rounded-2xl backdrop-blur-md justify-center z-[0]">
+                        <div id="hud-top" className="flex flex-row gap-[16px]">
+                            <img 
+                                src="./hud-small-border.svg"
+                                alt=""
+                                aria-hidden
+                                className="pointer-events-none absolute top-4 z-[1]"
+                            ></img>
+                            <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src={characterIcon}></img></div>
+                            <div id="progress"  className="flex flex-col relative top-[0px]">
+                                <div className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}>ПРОБЕГ <span ref={distanceRef} className="text-custom-yellow">0</span>/5000 км</div>
+                                <ProgressBar ref={progressRef} max={5000} className="relative top-[0px] mt-2" />
+                            </div>
+                            <img 
+                                src="./hud-small-border.svg"
+                                alt=""
+                                aria-hidden
+                                className="pointer-events-none absolute top-4 left-70 z-[2]"
+                            ></img>
+                            <div className="flex items-center justify-center h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src="./volume.svg" className="h-[16px] w-[16px]"></img></div>
+                        </div>
+                        <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
+                            <div className={`${handjet.className} text-cream-text`}>
+                                Попытка 1/3
+                            </div>
+                            <div className={`${handjet.className} text-cream-text`}>
+                                Рекорд
+                            </div>
+                        </div>
                     </div>
-                    <img 
-                        src="./hud-small-border.svg"
-                        alt=""
-                        aria-hidden
-                        className="pointer-events-none absolute top-4 left-70 z-[2]"
-                    ></img>
-                    <div className="flex items-center justify-center h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg"><img src="./volume.svg" className="h-[16px] w-[16px]"></img></div>
-                </div>
-                <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
-                    <div className={`${handjet.className} text-cream-text`}>
-                        Попытка 1/3
-                    </div>
-                    <div className={`${handjet.className} text-cream-text`}>
-                        Рекорд
-                    </div>
-                </div>
-            </div>
+                </>
+            )}
             {milestonePopup && (
                 <Push
                 km={milestonePopup.km}
@@ -308,7 +314,7 @@ function Game({ character, onComplete, onClick }: Props) {
                 open={endResult !== null}
                 onClose={() => {}}
                 title={endResult?.reason === "victory" ? "Победа!" : "Заезд завершен!"}
-                className="absolute b-[130px] z-[2]"
+                className="absolute b-[130px]"
             >
                 {endResult && (
                 <>

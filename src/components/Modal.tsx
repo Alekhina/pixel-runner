@@ -40,33 +40,39 @@ function Modal({
 
     return(
         <>
-        <img
-            src="/modal-border.svg"
-            alt=""
-            aria-hidden
-            loading="lazy"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[3] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
-        />
-        <div
-            className={`
-            w-[328px] h-[480px]
-            bg-black/30 backdrop-blur-md   
-            rounded-4xl     
-            p-4
-            ${className}
-            `.trim()}
-            onClick={(e) => e.stopPropagation()}
-        >
-            {title && (
-            <h2
-                id="modal-title"
-                className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] text-custom-lime`}
+            <div
+                className="absolute left-1/2 top-1/2 z-[5] h-[640px] w-[360px] -translate-x-1/2 -translate-y-1/2 bg-black/40"
+                aria-hidden
+                onClick={closeOnBackdrop ? onClose : undefined}
+            />
+            <img
+                src="/modal-border.svg"
+                alt=""
+                aria-hidden
+                loading="lazy"
+                className="pointer-events-none z-[7] absolute left-1/2 top-1/2 z-[3] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+            />
+            <div
+                className={`
+                z-[6]
+                w-[328px] h-[480px]
+                bg-black/30 backdrop-blur-md   
+                rounded-4xl     
+                p-4
+                ${className}
+                `.trim()}
+                onClick={(e) => e.stopPropagation()}
             >
-                {title}
-            </h2>
-            )}
-            <div className="text-[10px] leading-relaxed">{children}</div>
-        </div>
+                {title && (
+                <h2
+                    id="modal-title"
+                    className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] text-custom-lime`}
+                >
+                    {title}
+                </h2>
+                )}
+                <div className="text-[10px] leading-relaxed">{children}</div>
+            </div>
         </>
     )
 }
