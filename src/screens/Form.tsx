@@ -64,19 +64,30 @@ function Form({onClick}: Props) {
     const consentError = getError("consent");
 
     return (
-        <div className="relative mx-auto h-[640px] w-[360px] overflow-hidden
+        <div className="relative mx-auto h-screen w-full overflow-hidden
             bg-[url('/bg-form-mobile.png')] bg-cover bg-center bg-no-repeat
+			md:bg-[url('/bg-form-main.png')]
+            md:h-auto md:min-h-screen
+            
         ">
         <img
             src="/form-border.svg"
             alt=""
             aria-hidden
             loading="lazy"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] md:hidden h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+        />
+
+        <img
+            src="/form-border-main.svg"
+            alt=""
+            aria-hidden
+            loading="lazy"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 hidden md:block h-[600px] w-[328px] md:h-[588px] md:w-[578px]"
         />
             <div className="
                 absolute left-1/2 top-1/2 h-[600px] 
-                w-[328px] -translate-x-1/2 -translate-y-1/2
+                w-[328px] md:h-[588px] md:w-[578px] -translate-x-1/2 -translate-y-1/2
                 overflow-y-auto overflow-x-hidden
                 hide-scrollbar 
                 rounded-none
@@ -84,18 +95,19 @@ function Form({onClick}: Props) {
                 pb-[32px]
                 "
             >
-            <div className="relative z-10 flex flex-col items-stretch gap-2 pt-[24px] px-[16px]">
-                <p className="text-cream-text text-[16px] text-center">Чтобы выйти на старт, активируй</p>
-                <AccentText className="uppercase text-[24px] text-center">Driver Mode</AccentText>
+            <div className="relative z-10 flex flex-col items-stretch gap-2 pt-[24px] px-[16px] md:gap-1 md:px-[30px] md:pt-[19px]">
+                <p className="text-cream-text text-[16px] md:text-[24px] text-center">Чтобы выйти на старт, активируй</p>
+                <AccentText className="uppercase text-[18px] md:text-[36px] text-center">Driver Mode</AccentText>
 
+                <div className="grid grid-cols-1 pt-[8px] gap-y-2 md:grid-cols-[1fr_2fr] md:gap-y-4 md:mt-5 md:text-[20px]">
                 <label htmlFor="first-name"
-                    className="flex w-full items-center gap-2 text-left text-cream-text"
+                    className="flex items-center gap-2 text-left text-cream-text"
                 >
                     <img
                         src="/icon-id.svg"
                         alt=""
                         loading="lazy"
-                        className="h-[16px] w-[16px] shrink-0"
+                        className="h-[16px] w-[16px] md:h-[24px] md:w-[24px] shrink-0"
                         aria-hidden
                     />
                     Имя
@@ -109,7 +121,7 @@ function Form({onClick}: Props) {
                         src="/icon-id.svg"
                         alt=""
                         loading="lazy"
-                        className="h-[16px] w-[16px] shrink-0"
+                        className="h-[16px] w-[16px] md:h-[24px] md:w-[24px] shrink-0"
                         aria-hidden
                     />
                     Фамилия
@@ -123,7 +135,7 @@ function Form({onClick}: Props) {
                         src="/icon-house.svg"
                         alt=""
                         loading="lazy"
-                        className="h-[16px] w-[16px] shrink-0"
+                        className="h-[16px] w-[16px]  md:h-[24px] md:w-[24px] shrink-0"
                         aria-hidden
                     />
                     Город
@@ -137,15 +149,15 @@ function Form({onClick}: Props) {
                         src="/icon-phone.svg"
                         alt=""
                         loading="lazy"
-                        className="h-[16px] w-[16px] shrink-0"
+                        className="h-[16px] w-[16px] md:h-[24px] md:w-[24px] shrink-0"
                         aria-hidden
                     />
                     Телефон
                 </label>
                 <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={getError("phone")} onBlur={() => markTouched("phone")} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
-
+				</div>
                 <div>
-                <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left">
+                <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left md:mt-[23px]">
                     <input id="consent" type="checkbox" className="peer sr-only" checked={values.consent} onChange={(e) => updateField("consent", e.target.checked)}/>
                     <span
                         className={
@@ -166,7 +178,7 @@ function Form({onClick}: Props) {
                         />
                     </span>
                     {/* <span className="mt-0.5 h-5 w-5 shrink-0 border-2 border-cream-text bg-transparent peer-checked:bg-custom-lime" /> */}
-                    <span className="flex-1 text-left text-[12px] text-cream-text">я согласен (-а) с <a className="underline">политикой конфиденциальности</a> и обработки персональных данных</span>
+                    <span className="flex-1 text-left text-[12px] text-cream-text  md:text-[15px]">я согласен (-а) с <a className="underline">политикой конфиденциальности</a> и обработки персональных данных</span>
                 </label>
                 {consentError ? (
                     <p className="-mt-1 text-[12px] text-red-500">{consentError}</p>
@@ -185,7 +197,7 @@ function Form({onClick}: Props) {
                 />
 
                 {/* <Button onClick={handleSubmit} disabled={!isLeadFormValid(values)}>Активировать Driver Mode</Button> */}
-                <Button onClick={handleSubmit}>Активировать Driver Mode</Button>
+                <Button className="md:mt-[28px] md:text-[18px]" onClick={handleSubmit}>Активировать Driver Mode</Button>
                 
                 <div
                     aria-hidden
