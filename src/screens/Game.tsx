@@ -112,13 +112,13 @@ function Game({ character, onComplete, onClick }: Props) {
             runFrames,
             road,
             obstacles: {
-                konus: loadImage("/konus.png"),
-                exam: loadImage("/exam.png"),
-                lake: loadImage("/lake.png"),
-                hole: loadImage("/hole.png"),
-                stop: loadImage("/stop.png"),
-                repair: loadImage("/repair.png"),
-                heap: loadImage("./heap.png"),
+                konus: loadImage("/obstacles/konus.png"),
+                exam: loadImage("/obstacles/exam.png"),
+                lake: loadImage("/obstacles/lake.png"),
+                hole: loadImage("/obstacles/hole.png"),
+                stop: loadImage("/obstacles/stop.png"),
+                repair: loadImage("/obstacles/repair.png"),
+                heap: loadImage("/obstacles/heap.png"),
             }
         }
         
@@ -378,10 +378,10 @@ function Game({ character, onComplete, onClick }: Props) {
                         />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>2</p>
                     </div>
-                    <Button className="mb-2 w-full text-black text-[16px]" onClick={handleRetry}>
+                    <Button className="mb-2 w-full text-black" onClick={handleRetry}>
                         Новый заезд
                     </Button>
-                    <Button variant="secondary" className="mb-3 w-full bg-cream-text text-black text-[16px]" onClick={() => {}}>
+                    <Button variant="secondary" className="mb-3 w-full text-black" onClick={() => {}}>
                         Забрать скидку
                     </Button>
                     <p className="text-cream-text leading-[14px] text-[12px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>

@@ -21,8 +21,12 @@
   --color-inner-border-input: #EFE5CE;
   --color-inner-shadow-input: #A4A4C840;
   --color-chili-red: #FF2B00;
-  --color-cream-button-light-shadow: #FAF7F099;
-  --color-cream-button-dark-shadow: #CAB37F;
+  --color-cream-button-light-shadow: #FCF9EE99;
+  --color-cream-button-dark-shadow: #C79C52;
+  --color-cream-button-dark-shadow-hover: #AC7920;
+  --color-cream-button-light-shadow-pressed: #FCF9EE33;
+  --color-cream-button-hover: #DAC28B;
+  --color-cream-button-pressed: #CDAD65;
 }
 
 body {

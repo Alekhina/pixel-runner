@@ -28,7 +28,7 @@ function Start({onClick}: Props) {
                 </div>
                 <p className="text-cream-text pt-[14px] md:text-[24px] md:pt-[4px] ">Пройди путь до Кибертрака Вектор <br /> и открой скидку до 5000 ₽ на обучение.</p>
             </div>
-            <Button onClick={onClick} className="w-full md:w-[268px] md:text-[20px]">Начать игру</Button>
+            <Button onClick={onClick} className="w-full md:w-[268px]">Начать игру</Button>
         </div>
     )
 }

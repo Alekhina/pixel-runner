@@ -21,7 +21,7 @@ function Victory() {
                         Ты добрался до Кибертрака Вектор. Скидка 5000 ₽ открыта!
                     </p>
                 </div>
-                <Button className="mb-2 w-full text-black text-[16px]">Забрать 5000 ₽</Button>
+                <Button className="mb-2 w-full text-black">Забрать 5000 ₽</Button>
             </div>
         </>
 

@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes } from "react";
-import { Handjet, Press_Start_2P } from "next/font/google";
+import { Handjet } from "next/font/google";
+import FieldError from "@/components/FieldError";
 
 const handjet = Handjet({
   subsets: ["latin", "cyrillic"],
@@ -25,8 +26,7 @@ const inputStyles =
   // "aria-invalid:border-red-500 aria-invalid:focus:border-red-500 " +
   // "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input), inset_0_0_0_2px_var(--color-inner-border-input)] " +
   "placeholder:text-foreground/50 " +
-  "placeholder:[font-family:var(--font-handjet)] " +
-  "placeholder:text-[24px] " +
+  "text-[24px] " +
   "border-2 border-[var(--color-inner-border-input)] " +
   "outline-none focus:border-custom-yellow " +
   "disabled:cursor-not-allowed disabled:opacity-50";
@@ -55,14 +55,12 @@ function Input({
       <input
         id={inputId}
         aria-invalid={error ? true : undefined}
-        className={`${handjet.variable} ${inputStyles} ${
+        className={`${handjet.className} ${inputStyles} ${
           error ? "border-1 border-chili-red focus:border-chili-red" : ""
         } ${className}`.trim()}
         {...props}
       />
-      {error ? (
-        <p className="text-[12px] leading-tight text-chili-red">{error}</p>
-      ) : null}
+      {error ? <FieldError>{error}</FieldError> : null}
     </div>
   );
 }

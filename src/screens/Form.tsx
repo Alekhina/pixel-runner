@@ -3,6 +3,7 @@ import { useState } from "react";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import AccentText from "@/components/AccentText";
+import FieldError from "@/components/FieldError";
 import { LeadFormField, LeadFormFields, LeadFormErrors } from "@/lib/form-validation";
 import { validateLeadField, validateLeadForm } from "@/lib/form-validation";
 import { formatPhoneInput } from "@/lib/form-validation";
@@ -18,7 +19,7 @@ function Form({onClick}: Props) {
         firstName: "",
         lastName: "",
         city: "",
-        phone: "+7",
+        phone: "",
         consent: false,
         honeypot: "",
     });
@@ -154,16 +155,16 @@ function Form({onClick}: Props) {
                     />
                     Телефон
                 </label>
-                <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx" value={values.phone} error={getError("phone")} onBlur={() => markTouched("phone")} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
+                <Input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+7 (xxx) xxx xx xx," value={values.phone} error={getError("phone")} onBlur={() => markTouched("phone")} onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}></Input>
 				</div>
                 <div>
-                <label htmlFor="consent" className="flex w-full cursor-pointer items-start gap-3 text-left md:mt-[23px]">
+                <label htmlFor="consent" className="group flex w-full cursor-pointer items-start gap-3 text-left md:mt-[23px]">
                     <input id="consent" type="checkbox" className="peer sr-only" checked={values.consent} onChange={(e) => updateField("consent", e.target.checked)}/>
                     <span
                         className={
-                        `${consentError ? "border-red-500" : "border-cream-text"}
+                        `${consentError ? "border-chili-red group-hover:border-chili-red" : "border-cream-text group-hover:border-white peer-checked:border-cream-text peer-checked:group-hover:border-cream-text"}
                         relative mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center
-                        border-2 border-cream-text bg-transparent
+                        border-2 bg-transparent
                         peer-focus-visible:outline peer-focus-visible:outline-2
                         peer-focus-visible:outline-offset-2 peer-focus-visible:outline-custom-lime
                         [&_img]:opacity-0 peer-checked:[&_img]:opacity-100`
@@ -181,7 +182,7 @@ function Form({onClick}: Props) {
                     <span className="flex-1 text-left text-[12px] text-cream-text  md:text-[15px]">я согласен (-а) с <a className="underline">политикой конфиденциальности</a> и обработки персональных данных</span>
                 </label>
                 {consentError ? (
-                    <p className="-mt-1 text-[12px] text-red-500">{consentError}</p>
+                    <FieldError>{consentError}</FieldError>
                 ) : null}
                 </div>
 
@@ -196,8 +197,10 @@ function Form({onClick}: Props) {
                     onChange={(e) => updateField("honeypot", e.target.value)}
                 />
 
-                {/* <Button onClick={handleSubmit} disabled={!isLeadFormValid(values)}>Активировать Driver Mode</Button> */}
-                <Button className="md:mt-[28px] md:text-[18px]" onClick={handleSubmit}>Активировать Driver Mode</Button>
+                <Button className="md:mt-[28px]" onClick={handleSubmit} disabled={!isLeadFormValid(values)}>
+                    <span className="md:hidden">активировать</span>
+                    <span className="hidden md:inline">активировать driver mode</span>
+                </Button>
                 
                 <div
                     aria-hidden

@@ -37,7 +37,7 @@ function CharacterMenu({ value, onChange, onClick }: Props) {
         <CharacterSelectorMain value={value} onChange={onChange} />
       </div>
 
-      <Button disabled={!value} onClick={onClick} className="w-full md:w-[208px] md:h-[52px] md:text-[20px]">
+      <Button disabled={!value} onClick={onClick} className="w-full md:w-[208px]">
         На старт
       </Button>
     </div>

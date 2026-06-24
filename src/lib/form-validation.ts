@@ -21,9 +21,12 @@ export function normalizePhoneDigits(value: string): string {
 }
 
 export function formatPhoneInput(value: string): string {
-  const digits = normalizePhoneDigits(value);
-  const local = digits.slice(1);
-  if (local.length === 0) return "+7";
+  const digits = value.replace(/\D/g, "");
+  if (digits.length === 0) return "";
+
+  const normalized = normalizePhoneDigits(value);
+  const local = normalized.slice(1);
+  if (local.length === 0) return "";
   if (local.length <= 3) return `+7 (${local}`;
   if (local.length <= 6) return `+7 (${local.slice(0, 3)}) ${local.slice(3)}`;
   if (local.length <= 8) return `+7 (${local.slice(0, 3)}) ${local.slice(3, 6)} ${local.slice(6)}`;
