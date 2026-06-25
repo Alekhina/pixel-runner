@@ -84,11 +84,11 @@ function Form({onClick}: Props) {
             alt=""
             aria-hidden
             loading="lazy"
-            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 hidden md:block h-[600px] w-[328px] md:h-[588px] md:w-[578px]"
+            className="pointer-events-none absolute left-1/2 top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 hidden md:block h-[600px] md:w-[578px]"
         />
             <div className="
                 absolute left-1/2 top-1/2 h-[600px] 
-                w-[328px] md:h-[588px] md:w-[578px] -translate-x-1/2 -translate-y-1/2
+                w-[328px] md:w-[578px] -translate-x-1/2 -translate-y-1/2
                 overflow-y-auto overflow-x-hidden
                 hide-scrollbar 
                 rounded-none
@@ -199,7 +199,7 @@ function Form({onClick}: Props) {
 
                 <Button className="md:mt-[28px]" onClick={handleSubmit} disabled={!isLeadFormValid(values)}>
                     <span className="md:hidden">активировать</span>
-                    <span className="hidden md:inline">активировать driver mode</span>
+                    <span className="hidden md:inline">Aктивировать Driver Mode</span>
                 </Button>
                 
                 <div

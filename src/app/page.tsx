@@ -27,7 +27,7 @@ const Victory = dynamic(() => import("@/screens/Victory"));
 const Start = dynamic(() => import("@/screens/Start"));
 
 export default function Home() {
-  const [screen, setScreen] = useState<Screen>("start");
+  const [screen, setScreen] = useState<Screen>("victory");
   const [character, setCharacter] = useState<CharacterId | null>(null);
   const [gameResult, setGameResult] = useState<GameResult | null>(null);
 
