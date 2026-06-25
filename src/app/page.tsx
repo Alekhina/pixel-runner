@@ -47,7 +47,6 @@ export default function Home() {
             if (result.reason === "victory") {
               setScreen("victory");
             }
-            // setScreen("completion");
           }}
           onClick={() => {setScreen("game")}}></Game> : null;
         case "completion":

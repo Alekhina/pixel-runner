@@ -16,6 +16,7 @@ import { isColliding } from "@/game/collision";
 import { Handjet, Press_Start_2P } from "next/font/google";
 import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 import Modal from "@/components/Modal";
+import Promo from "@/components/Promo";
 import Button from "@/components/Button";
 import Push from "@/components/Push";
 import { initObstacleWorld, updateObstacles } from "@/game/update";
@@ -45,6 +46,7 @@ function loadImage(src: string): HTMLImageElement {
 
 function Game({ character, onComplete, onClick }: Props) {
     const [endResult, setEndResult] = useState<GameResult | null>(null);
+    const [discountView, setDiscountView] = useState(false);
     const [runKey, setRunKey] = useState(0);
     const [milestonePopup, setMilestonePopup] = useState<{
         km: number;
@@ -70,6 +72,7 @@ function Game({ character, onComplete, onClick }: Props) {
 
     const handleRetry = () => {
         setEndResult(null);
+        setDiscountView(false);
         setMilestonePopup(null);
         setRunKey((k) => k + 1);
     };
@@ -261,11 +264,12 @@ function Game({ character, onComplete, onClick }: Props) {
         characterIcon = "./vecta-icon.svg"
     }
 
-    const isModalOpen = endResult?.reason === "crash";
+    const isEndModalOpen = endResult?.reason === "crash";
+    const availableDiscount = endResult ? getDiscount(endResult.distance) : 0;
 
     return (
         <div className="flex flex-col relative items-center justify-center">
-            {!isModalOpen && (
+            {!isEndModalOpen && (
                 <>
                     <img src="./hud-border.svg"
                         alt=""
@@ -311,12 +315,28 @@ function Game({ character, onComplete, onClick }: Props) {
                 />
             )}
             <Modal
-                open={isModalOpen}
+                open={isEndModalOpen}
                 onClose={() => {}}
-                title="Заезд завершен!"
-                className="absolute b-[130px]"
+                closeOnBackdrop={false}
+                size={discountView ? "discount" : "default"}
+                title={discountView ? "СКИДКА У ТЕБЯ!" : "Заезд завершен!"}
             >
-                {endResult && (
+                {discountView && endResult ? (
+                <>
+                    <p className="mb-4 text-[16px] leading-[20px] text-center text-cream-text">
+                        Ты открыл промокод на {availableDiscount} ₽.
+                        <br />
+                        Скопируй его и используй при записи на обучение.
+                    </p>
+                    <Promo size="small" code="VECTOR-5000-ХХХХ" />
+                    <Button className="mb-3 w-full text-black" onClick={() => {}}>
+                        забрать {availableDiscount} ₽
+                    </Button>
+                    <p className="text-cream-text text-[12px] leading-[14px]">
+                        Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.
+                    </p>
+                </>
+                ) : endResult ? (
                 <>
                     <p className="text-[16px] leading-[16px] text-center text-cream-text">
                         Ты прошел {Math.floor(endResult.distance)} км.
@@ -381,12 +401,12 @@ function Game({ character, onComplete, onClick }: Props) {
                     <Button className="mb-2 w-full text-black" onClick={handleRetry}>
                         Новый заезд
                     </Button>
-                    <Button variant="secondary" className="mb-3 w-full text-black" onClick={() => {}}>
+                    <Button variant="secondary" className="mb-3 w-full text-black" onClick={() => setDiscountView(true)}>
                         Забрать скидку
                     </Button>
                     <p className="text-cream-text leading-[14px] text-[12px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>
                 </>
-                )}
+                ) : null}
             </Modal>
             <canvas ref={canvasRef}></canvas>
         </div>
