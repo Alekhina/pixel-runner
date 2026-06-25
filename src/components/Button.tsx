@@ -33,7 +33,7 @@ const secondaryShadow =
   "md:active:shadow-[inset_4px_4px_0_0_var(--color-cream-button-light-shadow-pressed),inset_-4px_-4px_0_0_var(--color-cream-button-dark-shadow-hover),6px_6px_0_0_black]";
 
 const styles =
-  "h-[48px] md:h-[60px] inline-flex items-center justify-center px-[16px] text-[16px] md:text-[20px] uppercase cursor-pointer border-[4px] border-black disabled:bg-disabled disabled:cursor-not-allowed " +
+  "h-[48px] md:h-[60px] inline-flex items-center justify-center px-[12px] text-[16px] md:text-[20px] uppercase cursor-pointer border-[4px] border-black disabled:bg-disabled disabled:cursor-not-allowed " +
   "transition-transform duration-300 ease-out " +
   "hover:-translate-y-0.5 active:translate-y-0 disabled:hover:translate-y-0 disabled:active:translate-y-0 ";
 
