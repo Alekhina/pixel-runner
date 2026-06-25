@@ -56,13 +56,13 @@ function Promo({ code, size = "small", className = "" }: Props) {
       />
       <div className="relative z-[2] flex h-full flex-col items-center justify-center gap-1 px-3">
         <p
-          className={`${pressStart2P.className} uppercase text-[12px] text-custom-lime`}
+          className={`${pressStart2P.className} uppercase text-[12px] md:text-[15px] text-custom-lime`}
         >
           промокод:
         </p>
         <CopyButton
           value={code}
-          textClassName={`${handjet.className} text-[28px] leading-none text-cream-text`}
+          textClassName={`${handjet.className} text-[28px] md:text-[36px] leading-none text-cream-text`}
         />
       </div>
     </div>
