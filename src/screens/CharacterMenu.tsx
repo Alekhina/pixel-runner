@@ -20,7 +20,7 @@ function CharacterMenu({ value, onChange, onClick, disabled = false }: Props) {
   // const [character, setCharacter] = useState<CharacterId | null>(null);
 
   return (
-    <div className="flex flex-col flex-1 gap-[45px] md:gap-[40px] items-center w-full h-screen bg-[url('/bg-character-mobile.png')] md:bg-[url('/bg-character-main.png')] bg-cover bg-center bg-no-repeat items-center pt-[70px] md:pt-[45px] pb-[102px] px-[16px]">
+    <div className="flex flex-col flex-1 gap-[45px] md:gap-[40px] xl:justify-between items-center w-full h-screen bg-[url('/bg-character-mobile.png')] md:bg-[url('/bg-character-main.png')] bg-cover bg-center bg-no-repeat items-center pt-[70px] md:pt-[45px] pb-[102px] px-[16px]">
       <div className="flex-col mx-auto text-center gap-[8px] md:gap-[4px]">
         <AccentText className="text-center uppercase text-[18px] md:text-[40px] text-white font-bold">
           Кто поведет тебя
@@ -38,7 +38,7 @@ function CharacterMenu({ value, onChange, onClick, disabled = false }: Props) {
         <CharacterSelectorMain value={value} onChange={onChange} />
       </div>
 
-      <Button disabled={!value || disabled} onClick={onClick} className="w-full md:w-[208px] lg:md:w-[260px]">
+      <Button disabled={!value || disabled} onClick={onClick} className="w-full md:w-[208px] xl:w-[268px]">
         На старт
       </Button>
     </div>
