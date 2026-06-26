@@ -21,7 +21,7 @@ function after(
 
 export const CHUNK_TEMPLATES: ChunkTemplate[] = [
   //   {
-  //   id: "konus",
+  //   id: "empty",
   //   minKm: 0,
   //   weight: 5,
   //   items: [],
@@ -44,77 +44,130 @@ export const CHUNK_TEMPLATES: ChunkTemplate[] = [
         return [konus, after(konus, "konus", MIN_GROUND_GAP + 200)];
     })(),
   },
-  // {
-  //   id: "double-konus-3",
-  //   minKm: 200,
-  //   weight: 5,
-  //   items: (() => {
-  //       const konus = { kind: "konus" as const, offsetX: 200 };
-  //       return [konus, after(konus, "konus", MIN_GROUND_GAP)];
-  //   })(),
-  // },
   {
-    id: "lake-then-konus",
-    minKm: 150,
-    weight: 3,
-    items: [
-      { kind: "lake", offsetX: 400 },
-      { kind: "konus", offsetX: 220 + 140 + MIN_PIT_GAP }
-    ],
+    id: "hole-then-konus",
+    minKm: 0,
+    weight: 5,
+    items: (() => {
+        const hole = { kind: "hole" as const, offsetX: 200 };
+        return [hole, after(hole, "konus", MIN_GROUND_GAP + 150)];
+    })(),
   },
-  // {
-  //   id: "double-lake",
-  //   minKm: 150,
-  //   weight: 3,
-  //   items: [
-  //     { kind: "lake", offsetX: 400 },
-  //     { kind: "lake", offsetX: 220 + 110 + MIN_PIT_GAP }
-  //   ],
-  // },
-  // {
-  //   id: "repair-then-hole",
-  //   minKm: 500,
-  //   weight: 3,
-  //   items: [
-  //     { kind: "repair", offsetX: 220 },
-  //     { kind: "hole", offsetX: 220 + 72 + MIN_PIT_GAP },
-  //   ],
-  // },
-  // {
-  //   id: "konus-then-lake",
-  //   minKm: 400,
-  //   weight: 3,
-  //   items: [
-  //     { kind: "konus", offsetX: 120 },
-  //     { kind: "lake", offsetX: 120 + 60 + MIN_PIT_GAP },
-  //   ],
-  // },
-  // {
-  //   id: "repair-then-heap",
-  //   minKm: 400,
-  //   weight: 4,
-  //   items: [
-  //     { kind: "repair", offsetX: 180 },
-  //     { kind: "heap", offsetX: 180 + 80 + MIN_GROUND_GAP },
-  //   ],
-  // },
-  // {
-  //   id: "stop-then-konus",
-  //   minKm: 400,
-  //   weight: 2,
-  //   items: [{ kind: "stop", offsetX: 380 },
-  //           { kind: "konus", offsetX: 120 + 60 + MIN_PIT_GAP }
-  //   ],
-  // },
-  // {
-  //   id: "triple-light",
-  //   minKm: 1000,
-  //   weight: 2,
-  //   items: (() => {
-  //     const hole = { kind: "hole" as const, offsetX: 100 };
-  //     const konus = after(hole, "konus", MIN_GROUND_GAP);
-  //     const lake = after(konus, "lake", MIN_PIT_GAP);
-  //     return [hole, konus, lake];
-  //   })(),
-  // },
+  {
+    id: "konus-then-hole",
+    minKm: 0,
+    weight: 5,
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "hole", MIN_PIT_GAP)];
+    })(),
+  },
+  {
+    id: "",
+    minKm: 0,
+    weight: 5,
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "hole", MIN_PIT_GAP)];
+    })(),
+  },
+    {
+      id: "barrier-then-hole",
+      minKm: 500,
+      weight: 5,
+      items: (() => {
+        const barrier = { kind: "barrier" as const, offsetX: 200 };
+        return [barrier, after(barrier, "hole", MIN_PIT_GAP)];
+    })(),
+    },
+    {
+      id: "stop-then-konus",
+      minKm: 1000,
+      weight: 2,
+      items: (() => {
+        const stop = { kind: "stop" as const, offsetX: 200 };
+        return [stop, after(stop, "konus", MIN_GROUND_GAP + 130)];
+      })(),
+    },
+    {
+      id: "double-stop",
+      minKm: 1000,
+      weight: 2,
+      items: (() => {
+        const stop = { kind: "stop" as const, offsetX: 200 };
+        return [stop, after(stop, "stop", MIN_GROUND_GAP + 150)];
+      })(),
+    },
+    {
+      id: "exam-then-konus",
+      minKm: 2000,
+      weight: 2,
+      items: (() => {
+        const exam = { kind: "exam" as const, offsetX: 200 };
+        return [exam, after(exam, "konus", MIN_GROUND_GAP + 120)];
+      })(),
+    },
+    {
+      id: "exam-then-stop",
+      minKm: 2000,
+      weight: 2,
+      items: (() => {
+        const exam = { kind: "exam" as const, offsetX: 200 };
+        return [exam, after(exam, "stop", MIN_GROUND_GAP + 140)];
+      })(),
+    },
+    {
+      id: "double-barrier",
+      minKm: 2500,
+      weight: 5,
+      items: (() => {
+        const barrier = { kind: "barrier" as const, offsetX: 200 };
+        return [barrier, after(barrier, "barrier", MIN_GROUND_GAP + 100)];
+    })(),
+    },
+    {
+      id: "lake-then-konus",
+      minKm: 2500,
+      weight: 3,
+      items: (() => {
+        const lake = { kind: "lake" as const, offsetX: 200 };
+        return [lake, after(lake, "konus", MIN_GROUND_GAP + 100)];
+      })(),
+    },
+    {
+      id: "double-lake",
+      minKm: 2500,
+      weight: 3,
+      items: (() => {
+        const lake = { kind: "lake" as const, offsetX: 200 };
+        return [lake, after(lake, "lake", MIN_PIT_GAP)];
+      })(),
+    },
+    {
+      id: "repair-then-hole",
+      minKm: 1500,
+      weight: 3,
+      items: (() => {
+        const repair = { kind: "repair" as const, offsetX: 200 };
+        return [repair, after(repair, "hole", MIN_PIT_GAP)];
+      })(),
+    },
+    {
+      id: "repair-repair",
+      minKm: 1500,
+      weight: 3,
+      items: (() => {
+        const repair = { kind: "repair" as const, offsetX: 120 };
+        return [repair, after(repair, "repair", MIN_PIT_GAP)];
+      })(),
+    },
+    {
+      id: "repair-then-bricks",
+      minKm: 3000,
+      weight: 4,
+      items: (() => {
+        const repair = { kind: "repair" as const, offsetX: 180 };
+        return [repair, after(repair, "bricks", MIN_GROUND_GAP + 80)];
+      })(),
+    },
 ];

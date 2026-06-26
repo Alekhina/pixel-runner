@@ -8,7 +8,6 @@ import { CANVAS, PLAYER, SPEEDS } from "@/game/config";
 import { DISTANCE_GOAL } from "@/game/config";
 import { DISCOUNT_TIERS } from "@/lib/discount";
 import { drawFrame } from "@/game/draw";
-import { buildObstacles } from "@/game/state";
 import type { GameAssets, GameResult, GameState } from "@/game/types";
 import { useRef } from "react";
 import { useEffect, useState } from "react";
@@ -18,6 +17,7 @@ import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 import Modal from "@/components/Modal";
 import Promo from "@/components/Promo";
 import Button from "@/components/Button";
+import { copyToClipboard } from "@/components/CopyButton";
 import Push from "@/components/Push";
 import { initObstacleWorld, updateObstacles } from "@/game/update";
 import { getObstacleSpeed, getBgSpeed } from "@/game/speeds";
@@ -68,6 +68,7 @@ function Game({
     const [runKey, setRunKey] = useState(0);
     const [startError, setStartError] = useState<string | null>(null);
     const [isClaiming, setIsClaiming] = useState(false);
+    const [promoCopied, setPromoCopied] = useState(false);
     const [sessionStats, setSessionStats] = useState({
         attemptsUsed,
         attemptsLeft,
@@ -141,30 +142,6 @@ function Game({
         onSessionUpdate(updated);
     };
 
-    const finishRun = async (result: GameResult) => {
-        try {
-            const updated = await updateGame({
-                sessionId,
-                action: "finish_attempt",
-                distanceKm: result.distance,
-                reason: result.reason,
-            });
-            applySessionUpdate(updated);
-
-            if (result.reason === "victory") {
-                setPendingVictory(result);
-                return;
-            }
-
-            setEndResult(result);
-        } catch (error) {
-            setStartError(
-                error instanceof Error ? error.message : "Не удалось сохранить результат",
-            );
-            setEndResult(result);
-        }
-    };
-
     const handleClaimDiscount = async () => {
         setIsClaiming(true);
         try {
@@ -183,15 +160,57 @@ function Game({
         }
     };
 
+    const handleTakeDiscount = async () => {
+        const code = sessionStats.promoCode;
+        if (!code) return;
+
+        const ok = await copyToClipboard(code);
+        if (!ok) return;
+
+        setPromoCopied(true);
+        window.setTimeout(() => setPromoCopied(false), 2000);
+    };
+
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const distanceRef = useRef<HTMLSpanElement | null>(null);
     const progressRef = useRef<ProgressBarHandle | null>(null);
-    const finishRunRef = useRef(finishRun);
-    finishRunRef.current = finishRun;
+    const activeRunIdRef = useRef(0);
 
     useEffect(() => {
+        const runId = ++activeRunIdRef.current;
         let cancelled = false;
+        let rafId = 0;
         let cleanup = () => {};
+
+        const finishRunForAttempt = async (result: GameResult) => {
+            if (runId !== activeRunIdRef.current) return;
+
+            try {
+                const updated = await updateGame({
+                    sessionId,
+                    action: "finish_attempt",
+                    distanceKm: result.distance,
+                    reason: result.reason,
+                });
+                if (runId !== activeRunIdRef.current) return;
+
+                applySessionUpdate(updated);
+
+                if (result.reason === "victory") {
+                    setPendingVictory(result);
+                    return;
+                }
+
+                setEndResult(result);
+            } catch (error) {
+                if (runId !== activeRunIdRef.current) return;
+
+                setStartError(
+                    error instanceof Error ? error.message : "Не удалось сохранить результат",
+                );
+                setEndResult(result);
+            }
+        };
 
         async function startRun() {
             setStartError(null);
@@ -210,6 +229,8 @@ function Game({
                 );
                 return;
             }
+
+        if (cancelled || runId !== activeRunIdRef.current) return;
 
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -248,7 +269,8 @@ function Game({
                 hole: loadImage("/obstacles/hole.png"),
                 stop: loadImage("/obstacles/stop.png"),
                 repair: loadImage("/obstacles/repair.png"),
-                heap: loadImage("/obstacles/heap.png"),
+                bricks: loadImage("/obstacles/bricks.png"),
+                barrier: loadImage("/obstacles/barrier.png"),
             }
         }
         
@@ -281,23 +303,30 @@ function Game({
         canvas.addEventListener("pointerdown", onPointerDown);
         window.addEventListener("keydown", onKeyDown);
 
-        let rafId = 0;
+        const startGameLoop = () => {
+            if (cancelled || runId !== activeRunIdRef.current) return;
 
-        backgrounds[0].onload = () => {
             let last = performance.now();
             let bgIndex = 0;
             let bgOffset = 0;
             let roadOffset = 0;
-            let delta_t = 1;
-            let g = PLAYER.gravity;
             let obstacleWorld = initObstacleWorld();
+
+            // 60 FPS baseline — physics was originally tuned per-frame at ~60 Hz
+            const stepHz = 60;
+
+            const stopLoop = () => {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            };
 
             const loop = (now: number) => {
                 if (status !== "playing") {
                     return;
                 }
 
-                if (cancelled === true) {
+                if (cancelled || runId !== activeRunIdRef.current) {
+                    stopLoop();
                     return;
                 }
 
@@ -306,6 +335,7 @@ function Game({
 
                 const dt = Math.min((now - last) / 1000, 0.05);
                 last = now;
+                const step = dt * stepHz;
                 const bg = assets.backgrounds[bgIndex];
                 const bgW = bg.naturalWidth * (h / bg.naturalHeight);
                 bgOffset += bgSpeed * dt;
@@ -319,11 +349,11 @@ function Game({
                 roadOffset += scrollDelta;
                 obstacleWorld = updateObstacles(obstacleWorld, scrollDelta, distance);
                 
-                playerVY += g * delta_t;
-                playerY += playerVY * delta_t;
+                playerVY += PLAYER.gravity * step;
+                playerY += playerVY * step;
                 playerY = Math.min(playerY, PLAYER.groundY);
 
-                distance += 0.5;
+                distance += 0.5 * step;
                 const currentKm = Math.floor(distance);
                 for (const tier of DISCOUNT_TIERS) {
                     if (currentKm >= tier && !passedMilestones.has(tier)) {
@@ -339,7 +369,8 @@ function Game({
 
                 if (distance >= DISTANCE_GOAL) {
                     status = "won";
-                    void finishRunRef.current({
+                    stopLoop();
+                    void finishRunForAttempt({
                         distance: DISTANCE_GOAL,
                         character,
                         reason: "victory",
@@ -361,7 +392,8 @@ function Game({
 
                 if (status === "playing" && isColliding(state)) {
                     status = "crashed";
-                    void finishRunRef.current({
+                    stopLoop();
+                    void finishRunForAttempt({
                         distance: distance,
                         character,
                         reason: "crash",
@@ -376,6 +408,13 @@ function Game({
 
             rafId = requestAnimationFrame(loop);
         };
+
+        const bg = backgrounds[0];
+        if (bg.complete && bg.naturalWidth > 0) {
+            startGameLoop();
+        } else {
+            bg.onload = startGameLoop;
+        }
 
         cleanup = () => {
             cancelled = true;
@@ -467,8 +506,14 @@ function Game({
                         Скопируй его и используй при записи на обучение.
                     </p>
                     <Promo size="small" code={sessionStats.promoCode ?? "VECTOR-XXXX-XXXX"} />
-                    <Button className="mb-3 w-full text-black" disabled={isClaiming}>
-                        забрать {sessionStats.bestDiscount} ₽
+                    <Button
+                        className="mb-3 w-full text-black"
+                        onClick={handleTakeDiscount}
+                        disabled={!sessionStats.promoCode}
+                    >
+                        {promoCopied
+                            ? "скопировано!"
+                            : `забрать ${sessionStats.bestDiscount} ₽`}
                     </Button>
                     <p className="text-cream-text text-[12px] leading-[14px]">
                         Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.

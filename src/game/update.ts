@@ -7,7 +7,7 @@ import {
   MIN_CHUNK_GAP,
   SPAWN_AHEAD_X,
 } from "./config";
-import { generateChunk, spawnChunkFromItems } from "./generator";
+import { createRunSeed, generateChunk, spawnChunkFromItems } from "./generator";
 import type { Obstacle } from "./types";
 
 export type ObstacleWorld = {
@@ -15,15 +15,16 @@ export type ObstacleWorld = {
   nextChunkIndex: number;
   worldEndX: number;
   nextObstacleId: number;
+  seed: number;
 };
 
 function getDifficulty(distance: number): number {
   return Math.min(distance / DISTANCE_GOAL, 1);
 }
 
-export function initObstacleWorld(): ObstacleWorld {
+export function initObstacleWorld(seed = createRunSeed()): ObstacleWorld {
   const chunkStartX = INITIAL_BARRIER_X;
-  const items = generateChunk(0, 0);
+  const items = generateChunk(0, 0, seed);
   const obstacles = spawnChunkFromItems(items, chunkStartX, 0);
 
   return {
@@ -31,6 +32,7 @@ export function initObstacleWorld(): ObstacleWorld {
     nextChunkIndex: 1,
     worldEndX: chunkStartX + CHUNK_WIDTH,
     nextObstacleId: obstacles.length,
+    seed,
   };
 }
 
@@ -50,14 +52,14 @@ export function updateObstacles(
     }))
     .filter((obs) => obs.x + obs.w >= DESPAWN_BEHIND_X);
 
-  let { nextChunkIndex, worldEndX, nextObstacleId } = world;
+  let { nextChunkIndex, worldEndX, nextObstacleId, seed } = world;
   worldEndX -= scrollDelta;
 
   const difficulty = getDifficulty(distance);
 
   while (worldEndX < CANVAS.w + SPAWN_AHEAD_X) {
     const chunkStartX = worldEndX + MIN_CHUNK_GAP;
-    const items = generateChunk(nextChunkIndex, distance);
+    const items = generateChunk(nextChunkIndex, distance, seed);
     const spawned = spawnChunkFromItems(items, chunkStartX, nextObstacleId);
 
     obstacles = obstacles.concat(spawned);
@@ -71,5 +73,6 @@ export function updateObstacles(
     nextChunkIndex,
     worldEndX,
     nextObstacleId,
+    seed,
   };
 }

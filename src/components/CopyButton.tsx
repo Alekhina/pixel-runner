@@ -46,4 +46,5 @@ async function copyToClipboard(text: string): Promise<boolean> {
   }
 }
 
+export { copyToClipboard };
 export default CopyButton;

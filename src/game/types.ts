@@ -20,7 +20,7 @@ export type Obstacle = {
 export type GameStatus = "playing" | "crashed" | "won";
 export type GameEndReason = "crash" | "victory";
 
-export type ObstacleKind = "konus" | "lake" | "hole" | "stop" | "exam" | "repair" | "heap";
+export type ObstacleKind = "konus" | "lake" | "hole" | "stop" | "exam" | "repair" | "bricks" | "barrier";
 
 export type GameState = {
     status: GameStatus;

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Promo from "@/components/Promo";
 import { Press_Start_2P } from "next/font/google";
 import Button from "@/components/Button";
+import { copyToClipboard } from "@/components/CopyButton";
 import { updateGame, type PlayerSessionState } from "@/lib/api-client";
 
 const pressStart2P = Press_Start_2P({
@@ -26,6 +27,7 @@ function Victory({
 }: Props) {
   const [displayCode, setDisplayCode] = useState<string | null>(promoCode);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [promoCopied, setPromoCopied] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -35,18 +37,30 @@ function Victory({
   }, [promoCode]);
 
   const handleClaim = async () => {
-    if (displayCode && !displayCode.includes("XXXX")) return;
-
     setIsClaiming(true);
     setClaimError(null);
 
     try {
-      const updated = await updateGame({
-        sessionId,
-        action: "claim_discount",
-      });
-      setDisplayCode(updated.promoCode);
-      onSessionUpdate(updated);
+      let code =
+        displayCode && !displayCode.includes("XXXX") ? displayCode : null;
+
+      if (!code) {
+        const updated = await updateGame({
+          sessionId,
+          action: "claim_discount",
+        });
+        code = updated.promoCode;
+        setDisplayCode(code);
+        onSessionUpdate(updated);
+      }
+
+      if (!code) return;
+
+      const ok = await copyToClipboard(code);
+      if (!ok) return;
+
+      setPromoCopied(true);
+      window.setTimeout(() => setPromoCopied(false), 2000);
     } catch (error) {
       setClaimError(
         error instanceof Error ? error.message : "Не удалось получить промокод",
@@ -85,9 +99,11 @@ function Victory({
           <Button
             className="w-full text-black md:text-[20px]"
             onClick={handleClaim}
-            disabled={isClaiming || Boolean(displayCode && !displayCode.includes("XXXX"))}
+            disabled={isClaiming}
           >
-            Забрать {bestDiscount} ₽
+            {promoCopied
+              ? "скопировано!"
+              : `Забрать ${bestDiscount} ₽`}
           </Button>
           {claimError ? (
             <p className="text-center text-[14px] text-chili-red">{claimError}</p>
