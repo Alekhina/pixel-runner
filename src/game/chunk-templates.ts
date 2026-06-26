@@ -20,30 +20,30 @@ function after(
 }
 
 export const CHUNK_TEMPLATES: ChunkTemplate[] = [
-    {
-    id: "konus",
+  //   {
+  //   id: "konus",
+  //   minKm: 0,
+  //   weight: 5,
+  //   items: [],
+  // },
+  {
+    id: "double-konus",
     minKm: 0,
     weight: 5,
-    items: [],
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "konus", MIN_GROUND_GAP + 150)];
+    })(),
   },
-  // {
-  //   id: "double-konus",
-  //   minKm: 0,
-  //   weight: 5,
-  //   items: (() => {
-  //       const konus = { kind: "konus" as const, offsetX: 200 };
-  //       return [konus, after(konus, "konus", MIN_GROUND_GAP + 150)];
-  //   })(),
-  // },
-  // {
-  //   id: "double-konus-2",
-  //   minKm: 0,
-  //   weight: 5,
-  //   items: (() => {
-  //       const konus = { kind: "konus" as const, offsetX: 200 };
-  //       return [konus, after(konus, "konus", MIN_GROUND_GAP + 200)];
-  //   })(),
-  // },
+  {
+    id: "double-konus-2",
+    minKm: 0,
+    weight: 5,
+    items: (() => {
+        const konus = { kind: "konus" as const, offsetX: 200 };
+        return [konus, after(konus, "konus", MIN_GROUND_GAP + 200)];
+    })(),
+  },
   // {
   //   id: "double-konus-3",
   //   minKm: 200,
@@ -53,15 +53,15 @@ export const CHUNK_TEMPLATES: ChunkTemplate[] = [
   //       return [konus, after(konus, "konus", MIN_GROUND_GAP)];
   //   })(),
   // },
-  // {
-  //   id: "lake-then-konus",
-  //   minKm: 150,
-  //   weight: 3,
-  //   items: [
-  //     { kind: "lake", offsetX: 400 },
-  //     { kind: "konus", offsetX: 220 + 140 + MIN_PIT_GAP }
-  //   ],
-  // },
+  {
+    id: "lake-then-konus",
+    minKm: 150,
+    weight: 3,
+    items: [
+      { kind: "lake", offsetX: 400 },
+      { kind: "konus", offsetX: 220 + 140 + MIN_PIT_GAP }
+    ],
+  },
   // {
   //   id: "double-lake",
   //   minKm: 150,
