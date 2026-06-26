@@ -17,7 +17,19 @@ type Props = {
   discount: number;
 };
 
+const MILESTONE_MESSAGES: Record<number, string> = {
+  500: "Старт пройден",
+  1000: "Driver Mode загружается",
+  1500: "Ты держишь вектор",
+  2000: "Серьезная заявка",
+  2500: "Половина пути к легенде",
+  3000: "Уровень водителя",
+  5000: "Кибертрак открыт",
+};
+
 function Push({ km, discount }: Props) {
+  const message = MILESTONE_MESSAGES[km] ?? "Скидка открыта";
+
   return (
     <>
       <img 
@@ -25,11 +37,11 @@ function Push({ km, discount }: Props) {
         alt=""
         aria-hidden
         loading="lazy"
-        className="pointer-events-none z-[7] absolute left-1/2 top-1/2 z-[3] h-[42px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+        className="pointer-events-none z-[7] absolute top-40 top-1/2 -translate-y-1/2 z-[3] h-[42px] w-[328px]"
       />
-      <div className="pointer-events-none absolute top-[140px] z-40 w-[328px] h-[42px] border-2 border-white bg-black/20 backdrop-blur-md px-4 py-3 text-center">
+      <div className="pointer-events-none flex justify-center items-center absolute top-40 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[328px] h-[42px] bg-black/20 rounded-2xl backdrop-blur-md text-center">
         <p className={`${handjet.className} text-[16px] text-cream-text`}>
-          Driver mode загружается. Cкидка <span className="text-custom-yellow">{discount} ₽</span> открыта.
+          {message}. Скидка <span className="text-custom-yellow">{discount} ₽</span> открыта.
         </p>
       </div>
     </>

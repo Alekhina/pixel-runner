@@ -18,14 +18,25 @@ export function drawFrame(
 }
 
 function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
-    const w = 360;
     const h = 640;
-    const x1 = - state.bgOffset;
     const bg = assets.backgrounds[state.bgIndex];
-    if (!bg) return;
+    if (!bg?.naturalHeight) return;
 
     const scale = h / bg.naturalHeight;
     const bgW = bg.naturalWidth * scale;
+    const nextBg = assets.backgrounds[state.bgIndex + 1];
+
+    if (nextBg?.naturalHeight) {
+        const x = -state.bgOffset;
+        ctx.drawImage(bg, x, 0, bgW, h);
+
+        const nextScale = h / nextBg.naturalHeight;
+        const nextW = nextBg.naturalWidth * nextScale;
+        ctx.drawImage(nextBg, x + bgW, 0, nextW, h);
+        return;
+    }
+
+    const x1 = -(state.bgOffset % bgW);
     ctx.drawImage(bg, x1, 0, bgW, h);
     ctx.drawImage(bg, x1 + bgW, 0, bgW, h);
 }

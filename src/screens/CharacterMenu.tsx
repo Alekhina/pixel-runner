@@ -13,9 +13,10 @@ type Props = {
   value: CharacterId | null;
   onChange: (id: CharacterId) => void;
   onClick: () => void;
+  disabled?: boolean;
 };
 
-function CharacterMenu({ value, onChange, onClick }: Props) {
+function CharacterMenu({ value, onChange, onClick, disabled = false }: Props) {
   // const [character, setCharacter] = useState<CharacterId | null>(null);
 
   return (
@@ -37,7 +38,7 @@ function CharacterMenu({ value, onChange, onClick }: Props) {
         <CharacterSelectorMain value={value} onChange={onChange} />
       </div>
 
-      <Button disabled={!value} onClick={onClick} className="w-full md:w-[208px]">
+      <Button disabled={!value || disabled} onClick={onClick} className="w-full md:w-[208px]">
         На старт
       </Button>
     </div>

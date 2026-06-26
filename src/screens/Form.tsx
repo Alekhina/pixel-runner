@@ -12,13 +12,13 @@ import {
 import { validateLeadField, validateLeadForm } from "@/lib/form-validation";
 import { formatPhoneInput } from "@/lib/form-validation";
 import { isLeadFormValid } from "@/lib/form-validation";
-// import
+import { submitLead, type PlayerSessionState } from "@/lib/api-client";
 
 type Props = {
-  onClick: () => void;
+  onSuccess: (session: PlayerSessionState) => void;
 };
 
-function Form({ onClick }: Props) {
+function Form({ onSuccess }: Props) {
   const [values, setValues] = useState<LeadFormFields>({
     firstName: "",
     lastName: "",
@@ -32,6 +32,8 @@ function Form({ onClick }: Props) {
   const [touched, setTouched] = useState<
     Partial<Record<LeadFormField, boolean>>
   >({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const updateField = (field: LeadFormField, value: string | boolean) => {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -43,8 +45,9 @@ function Form({ onClick }: Props) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setSubmitted(true);
+    setSubmitError(null);
     setTouched({
       firstName: true,
       lastName: true,
@@ -53,8 +56,27 @@ function Form({ onClick }: Props) {
       consent: true,
     });
     const nextErrors = validateLeadForm(values);
-    if (Object.keys(nextErrors).length === 0) {
-      onClick();
+    if (Object.keys(nextErrors).length > 0) {
+      setErrors(nextErrors);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const session = await submitLead(values);
+      onSuccess(session);
+    } catch (error) {
+      const apiError = error as Error & { errors?: LeadFormErrors };
+      if (apiError.errors) {
+        setErrors(apiError.errors);
+      }
+      setSubmitError(
+        apiError instanceof Error
+          ? apiError.message
+          : "Не удалось отправить форму",
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -259,10 +281,12 @@ function Form({ onClick }: Props) {
             onChange={(e) => updateField("honeypot", e.target.value)}
           />
 
+          {submitError ? <FieldError>{submitError}</FieldError> : null}
+
           <Button
             className="md:mt-[28px]"
             onClick={handleSubmit}
-            disabled={!isLeadFormValid(values)}
+            disabled={!isLeadFormValid(values) || isSubmitting}
           >
             <span className="md:hidden">активировать</span>
             <span className="hidden md:inline">Aктивировать Driver Mode</span>

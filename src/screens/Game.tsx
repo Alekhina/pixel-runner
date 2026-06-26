@@ -3,7 +3,7 @@
 import { getDiscount } from "@/lib/discount";
 import { CharacterId } from "@/lib/characters";
 import { RUN_FRAMES } from "@/lib/characters";
-import { MILESTONE_POPUP_MS } from "@/game/config";
+import { MILESTONE_POPUP_MS, VICTORY_TRANSITION_MS } from "@/game/config";
 import { CANVAS, PLAYER, SPEEDS } from "@/game/config";
 import { DISTANCE_GOAL } from "@/game/config";
 import { DISCOUNT_TIERS } from "@/lib/discount";
@@ -21,11 +21,19 @@ import Button from "@/components/Button";
 import Push from "@/components/Push";
 import { initObstacleWorld, updateObstacles } from "@/game/update";
 import { getObstacleSpeed, getBgSpeed } from "@/game/speeds";
+import { updateGame, type PlayerSessionState } from "@/lib/api-client";
+import { MAX_ATTEMPTS } from "@/lib/player";
 
 type Props = {
     character: CharacterId,
+    sessionId: string,
+    attemptsUsed: number,
+    attemptsLeft: number,
+    bestDistanceKm: number,
+    bestDiscount: number,
+    promoCode: string | null,
+    onSessionUpdate: (session: PlayerSessionState) => void,
     onComplete: (result: GameResult) => void,
-    onClick: () => void,
 }
 
 const handjet = Handjet({
@@ -44,14 +52,44 @@ function loadImage(src: string): HTMLImageElement {
   return img;
 }
 
-function Game({ character, onComplete, onClick }: Props) {
+function Game({
+    character,
+    sessionId,
+    attemptsUsed,
+    attemptsLeft,
+    bestDistanceKm,
+    bestDiscount,
+    promoCode,
+    onSessionUpdate,
+    onComplete,
+}: Props) {
     const [endResult, setEndResult] = useState<GameResult | null>(null);
     const [discountView, setDiscountView] = useState(false);
     const [runKey, setRunKey] = useState(0);
+    const [startError, setStartError] = useState<string | null>(null);
+    const [isClaiming, setIsClaiming] = useState(false);
+    const [sessionStats, setSessionStats] = useState({
+        attemptsUsed,
+        attemptsLeft,
+        bestDistanceKm,
+        bestDiscount,
+        promoCode,
+    });
     const [milestonePopup, setMilestonePopup] = useState<{
         km: number;
         discount: number;
         } | null>(null);
+    const [pendingVictory, setPendingVictory] = useState<GameResult | null>(null);
+
+    useEffect(() => {
+        setSessionStats({
+            attemptsUsed,
+            attemptsLeft,
+            bestDistanceKm,
+            bestDiscount,
+            promoCode,
+        });
+    }, [attemptsUsed, attemptsLeft, bestDistanceKm, bestDiscount, promoCode]);
 
         const showMilestoneRef = useRef<(km: number) => void>(() => {});
 
@@ -70,21 +108,109 @@ function Game({ character, onComplete, onClick }: Props) {
         return () => clearTimeout(id);
         }, [milestonePopup]);
 
+    const onCompleteRef = useRef(onComplete);
+    onCompleteRef.current = onComplete;
+
+    useEffect(() => {
+        if (!pendingVictory) return;
+
+        const id = window.setTimeout(() => {
+            onCompleteRef.current(pendingVictory);
+        }, VICTORY_TRANSITION_MS);
+
+        return () => clearTimeout(id);
+    }, [pendingVictory]);
+
     const handleRetry = () => {
+        if (sessionStats.attemptsLeft <= 0) return;
         setEndResult(null);
         setDiscountView(false);
         setMilestonePopup(null);
+        setStartError(null);
         setRunKey((k) => k + 1);
+    };
+
+    const applySessionUpdate = (updated: PlayerSessionState) => {
+        setSessionStats({
+            attemptsUsed: updated.attemptsUsed,
+            attemptsLeft: updated.attemptsLeft,
+            bestDistanceKm: updated.bestDistanceKm,
+            bestDiscount: updated.bestDiscount,
+            promoCode: updated.promoCode,
+        });
+        onSessionUpdate(updated);
+    };
+
+    const finishRun = async (result: GameResult) => {
+        try {
+            const updated = await updateGame({
+                sessionId,
+                action: "finish_attempt",
+                distanceKm: result.distance,
+                reason: result.reason,
+            });
+            applySessionUpdate(updated);
+
+            if (result.reason === "victory") {
+                setPendingVictory(result);
+                return;
+            }
+
+            setEndResult(result);
+        } catch (error) {
+            setStartError(
+                error instanceof Error ? error.message : "Не удалось сохранить результат",
+            );
+            setEndResult(result);
+        }
+    };
+
+    const handleClaimDiscount = async () => {
+        setIsClaiming(true);
+        try {
+            const updated = await updateGame({
+                sessionId,
+                action: "claim_discount",
+            });
+            applySessionUpdate(updated);
+            setDiscountView(true);
+        } catch (error) {
+            setStartError(
+                error instanceof Error ? error.message : "Не удалось получить промокод",
+            );
+        } finally {
+            setIsClaiming(false);
+        }
     };
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const distanceRef = useRef<HTMLSpanElement | null>(null);
     const progressRef = useRef<ProgressBarHandle | null>(null);
-    const onEndRef = useRef(onComplete);
-    onEndRef.current = onComplete;
+    const finishRunRef = useRef(finishRun);
+    finishRunRef.current = finishRun;
 
     useEffect(() => {
         let cancelled = false;
+        let cleanup = () => {};
+
+        async function startRun() {
+            setStartError(null);
+
+            try {
+                const updated = await updateGame({
+                    sessionId,
+                    action: "start_attempt",
+                });
+                if (cancelled) return;
+                applySessionUpdate(updated);
+            } catch (error) {
+                if (cancelled) return;
+                setStartError(
+                    error instanceof Error ? error.message : "Не удалось начать заезд",
+                );
+                return;
+            }
+
         const canvas = canvasRef.current;
         if (!canvas) return;
         
@@ -101,6 +227,7 @@ function Game({ character, onComplete, onClick }: Props) {
         ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
         
         const backgrounds = [
+            loadImage("/bg-morning.png"),
             loadImage("/bg-day.png"),
             loadImage("/bg-evening.png"),
             loadImage("/bg-night.png"),
@@ -161,7 +288,6 @@ function Game({ character, onComplete, onClick }: Props) {
             let bgIndex = 0;
             let bgOffset = 0;
             let roadOffset = 0;
-            let barrierX = 350;
             let delta_t = 1;
             let g = PLAYER.gravity;
             let obstacleWorld = initObstacleWorld();
@@ -213,7 +339,7 @@ function Game({ character, onComplete, onClick }: Props) {
 
                 if (distance >= DISTANCE_GOAL) {
                     status = "won";
-                    onEndRef.current({
+                    void finishRunRef.current({
                         distance: DISTANCE_GOAL,
                         character,
                         reason: "victory",
@@ -235,7 +361,7 @@ function Game({ character, onComplete, onClick }: Props) {
 
                 if (status === "playing" && isColliding(state)) {
                     status = "crashed";
-                    setEndResult({
+                    void finishRunRef.current({
                         distance: distance,
                         character,
                         reason: "crash",
@@ -251,13 +377,20 @@ function Game({ character, onComplete, onClick }: Props) {
             rafId = requestAnimationFrame(loop);
         };
 
-        return () => {
+        cleanup = () => {
             cancelled = true;
             cancelAnimationFrame(rafId);
             window.removeEventListener("keydown", onKeyDown);
             canvas.removeEventListener("pointerdown", onPointerDown);
         };
-    }, [character, runKey]);
+        }
+
+        startRun();
+
+        return () => {
+            cleanup();
+        };
+    }, [character, runKey, sessionId]);
 
     let characterIcon = "./kodik-icon.svg";
     if (character === "vekta") {
@@ -299,10 +432,10 @@ function Game({ character, onComplete, onClick }: Props) {
                         </div>
                         <div id="hud-bottom" className="flex flex-row justify-between gap-[120px]">
                             <div className={`${handjet.className} text-cream-text`}>
-                                Попытка: <span className={`${pressStart2P.className} text-[10px]`}>1/3</span>
+                                Попытка: <span className={`${pressStart2P.className} text-[10px]`}>{sessionStats.attemptsUsed}/{MAX_ATTEMPTS}</span>
                             </div>
                             <div className={`${handjet.className} text-cream-text`}>
-                                Рекорд: <span className={`${pressStart2P.className} text-[10px]`}>1024</span>
+                                Рекорд: <span className={`${pressStart2P.className} text-[10px]`}>{Math.floor(sessionStats.bestDistanceKm)}</span>
                             </div>
                         </div>
                     </div>
@@ -314,6 +447,11 @@ function Game({ character, onComplete, onClick }: Props) {
                 discount={milestonePopup.discount}
                 />
             )}
+            {startError && !isEndModalOpen ? (
+                <p className="absolute top-[120px] z-10 max-w-[328px] rounded bg-chili-red px-4 py-2 text-center text-[14px] text-white">
+                    {startError}
+                </p>
+            ) : null}
             <Modal
                 open={isEndModalOpen}
                 onClose={() => {}}
@@ -324,13 +462,13 @@ function Game({ character, onComplete, onClick }: Props) {
                 {discountView && endResult ? (
                 <>
                     <p className="mb-4 text-[16px] leading-[20px] text-center text-cream-text">
-                        Ты открыл промокод на {availableDiscount} ₽.
+                        Ты открыл промокод на {sessionStats.bestDiscount} ₽.
                         <br />
                         Скопируй его и используй при записи на обучение.
                     </p>
-                    <Promo size="small" code="VECTOR-5000-ХХХХ" />
-                    <Button className="mb-3 w-full text-black" onClick={() => {}}>
-                        забрать {availableDiscount} ₽
+                    <Promo size="small" code={sessionStats.promoCode ?? "VECTOR-XXXX-XXXX"} />
+                    <Button className="mb-3 w-full text-black" disabled={isClaiming}>
+                        забрать {sessionStats.bestDiscount} ₽
                     </Button>
                     <p className="text-cream-text text-[12px] leading-[14px]">
                         Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.
@@ -357,7 +495,7 @@ function Game({ character, onComplete, onClick }: Props) {
                             }}
                             aria-hidden
                         />
-                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>1/3</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{sessionStats.attemptsUsed}/{MAX_ATTEMPTS}</p>
                     </div>
                     <div className="flex items-end justify-between">
                         <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Лучший результат:</p>
@@ -370,7 +508,7 @@ function Game({ character, onComplete, onClick }: Props) {
                             }}
                             aria-hidden
                         />
-                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{Math.floor(endResult.distance)} км</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{Math.floor(sessionStats.bestDistanceKm)} км</p>
                     </div>
                     <div className="flex items-end justify-between">
                         <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Доступная скидка:</p>
@@ -383,7 +521,7 @@ function Game({ character, onComplete, onClick }: Props) {
                             }}
                             aria-hidden
                         />
-                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{getDiscount(endResult.distance)} ₽</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{sessionStats.bestDiscount} ₽</p>
                     </div>
                     <div className="flex mb-5 items-end justify-between">                
                         <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки:</p>
@@ -396,12 +534,14 @@ function Game({ character, onComplete, onClick }: Props) {
                             }}
                             aria-hidden
                         />
-                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>2</p>
+                        <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{sessionStats.attemptsLeft}</p>
                     </div>
+                    {sessionStats.attemptsLeft > 0 ? (
                     <Button className="mb-2 w-full text-black" onClick={handleRetry}>
                         Новый заезд
                     </Button>
-                    <Button variant="secondary" className="mb-3 w-full text-black" onClick={() => setDiscountView(true)}>
+                    ) : null}
+                    <Button variant="secondary" className="mb-3 w-full text-black" onClick={handleClaimDiscount} disabled={isClaiming || sessionStats.bestDiscount <= 0}>
                         Забрать скидку
                     </Button>
                     <p className="text-cream-text leading-[14px] text-[12px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>

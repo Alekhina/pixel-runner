@@ -3,6 +3,7 @@ export const DEBUG_HITBOXES = false;
 export const DISTANCE_GOAL = 5000;
 
 export const MILESTONE_POPUP_MS = 2500;
+export const VICTORY_TRANSITION_MS = 1750;
 
 export const CANVAS = { w: 360, h: 640 };
 
@@ -24,8 +25,8 @@ export const PLAYER = {
 };
 
 export const SPEEDS = {
-    bg: 60,
-    bgMax: 84,
+    bg: 120,
+    bgMax: 168,
     obstacles: 300,
     obstaclesMax: 450,
 };
