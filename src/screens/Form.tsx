@@ -105,7 +105,7 @@ function Form({ onSuccess }: Props) {
         alt=""
         aria-hidden
         loading="lazy"
-        className="pointer-events-none absolute left-1/2 top-1/2 z-[2] md:hidden h-[600px] w-[328px] -translate-x-1/2 -translate-y-1/2"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-[2] md:hidden h-[588px] w-[328px] -translate-x-1/2 -translate-y-1/2"
       />
 
       <img
@@ -113,11 +113,11 @@ function Form({ onSuccess }: Props) {
         alt=""
         aria-hidden
         loading="lazy"
-        className="pointer-events-none absolute left-1/2 top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 hidden md:block h-[600px] md:w-[578px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 hidden md:block h-[588px] md:w-[578px]"
       />
       <div
         className="
-                absolute left-1/2 top-1/2 h-[600px] 
+                absolute left-1/2 top-1/2 h-[588px] 
                 w-[328px] md:w-[578px] -translate-x-1/2 -translate-y-1/2
                 overflow-y-auto overflow-x-hidden
                 hide-scrollbar 
@@ -299,19 +299,19 @@ function Form({ onSuccess }: Props) {
           />
         </div>
       </div>
-      <div className="hidden md:block absolute  bottom-0 right-0 w-[276px] h-[414px] z-50">
+      <div className="hidden xl:block absolute  bottom-0 right-0 w-[276px] h-[414px] z-50">
         <img
           src="/kodik-person.png"
           alt=""
           loading="lazy"
-          className="absolute w-[276px] h-[414px] bottom-0 right-[102px]"
+          className="absolute w-[276px] h-[414px] bottom-0 xl:right-[102px] 2xl:bottom-35 2xl:right-[302px]"
           aria-hidden
         />
         <img
           src="/vecta-person.png"
           alt=""
           loading="lazy"
-          className="absolute w-[146px] h-[354px] bottom-0 right-[74px]"
+          className="absolute w-[146px] h-[354px] bottom-0 xl:right-[74px] 2xl:bottom-35 2xl:right-[274px]"
           aria-hidden
         />
       </div>
