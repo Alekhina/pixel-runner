@@ -21,7 +21,7 @@ type InputProps = {
 
 const inputStyles =
   "w-full h-[44px] px-4 box-border " +
-  "bg-white/90 text-foreground placeholder:text-foreground/50 " +
+  "bg-white/90 md:bg-white text-foreground placeholder:text-foreground/50 " +
   "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input)] " +
   // "aria-invalid:border-red-500 aria-invalid:focus:border-red-500 " +
   // "shadow-[inset_4px_4px_0_0_var(--color-inner-shadow-input), inset_0_0_0_2px_var(--color-inner-border-input)] " +

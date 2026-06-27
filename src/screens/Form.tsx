@@ -134,7 +134,7 @@ function Form({ onSuccess }: Props) {
             Driver Mode
           </AccentText>
 
-          <div className="grid grid-cols-1 pt-[8px] gap-y-2 md:grid-cols-[1fr_2fr] md:gap-y-4 md:mt-5 md:text-[20px]">
+          <div className="grid grid-cols-1 pt-[8px] gap-y-2 md:grid-cols-[1fr_376px] md:gap-y-4 md:mt-5 md:text-[20px]">
             <label
               htmlFor="first-name"
               className="flex items-center gap-2 text-left text-cream-text"
@@ -219,7 +219,7 @@ function Form({ onSuccess }: Props) {
               type="tel"
               inputMode="tel"
               autoComplete="tel"
-              placeholder="+7 (xxx) xxx xx xx,"
+              placeholder="+7 (xxx) xxx xx xx"
               value={values.phone}
               error={getError("phone")}
               onBlur={() => markTouched("phone")}
