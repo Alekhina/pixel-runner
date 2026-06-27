@@ -1,6 +1,6 @@
 import type { ChunkSpawnItem } from "./types";
 import { MIN_GROUND_GAP, MIN_PIT_GAP } from "./config";
-import { OBSTACLE_DEFS } from "./obstacle-defs";
+import { MOBILE_LAYOUT } from "./layout/mobile";
 
 export type ChunkTemplate = {
   id: string;
@@ -15,7 +15,7 @@ function after(
   kind: ChunkSpawnItem["kind"],
   gap: number,
 ): ChunkSpawnItem {
-  const prevW = OBSTACLE_DEFS[prev.kind].w;
+  const prevW = MOBILE_LAYOUT.obstacles[prev.kind].w;
   return { kind, offsetX: prev.offsetX + prevW + gap };
 }
 

@@ -4,8 +4,8 @@ import { getDiscount } from "@/lib/discount";
 import { CharacterId } from "@/lib/characters";
 import { RUN_FRAMES } from "@/lib/characters";
 import { MILESTONE_POPUP_MS, VICTORY_TRANSITION_MS } from "@/game/config";
-import { CANVAS, PLAYER, SPEEDS } from "@/game/config";
 import { DISTANCE_GOAL } from "@/game/config";
+import { getGameLayout } from "@/game/layout";
 import { DISCOUNT_TIERS } from "@/lib/discount";
 import { drawFrame } from "@/game/draw";
 import type { GameAssets, GameResult, GameState } from "@/game/types";
@@ -237,9 +237,14 @@ function Game({
         
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        
+
+        const layout = getGameLayout({
+            w: window.innerWidth,
+            h: window.innerHeight,
+        });
+        const { player } = layout;
+        const { w, h } = layout.canvas;
         const dpr = window.devicePixelRatio ?? 1;
-        const { w, h } = CANVAS;
         canvas.style.width = `${w}px`;
         canvas.style.height = `${h}px`;
         canvas.width = Math.floor(w * dpr);
@@ -275,7 +280,7 @@ function Game({
         }
         
         let status: GameState["status"] = "playing";
-        let playerY = PLAYER.groundY;
+        let playerY = player.groundY;
         let playerVY = 0;
         let jumpUntil = 0;
         let distance = 0;
@@ -286,16 +291,16 @@ function Game({
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.code === "ArrowUp") {
                 e.preventDefault();
-                if (playerY >= PLAYER.groundY) {
-                    playerVY = PLAYER.jumpVY;
+                if (playerY >= player.groundY) {
+                    playerVY = player.jumpVY;
                     jumpUntil = performance.now() + JUMP_SPRITE_MS;
                 }
             }
         };
         
         const onPointerDown = () => {
-            if (playerY >= PLAYER.groundY) {
-                playerVY = PLAYER.jumpVY;
+            if (playerY >= player.groundY) {
+                playerVY = player.jumpVY;
                 jumpUntil = performance.now() + JUMP_SPRITE_MS;
             }
         };
@@ -310,7 +315,7 @@ function Game({
             let bgIndex = 0;
             let bgOffset = 0;
             let roadOffset = 0;
-            let obstacleWorld = initObstacleWorld();
+            let obstacleWorld = initObstacleWorld(layout);
 
             // 60 FPS baseline — physics was originally tuned per-frame at ~60 Hz
             const stepHz = 60;
@@ -330,8 +335,8 @@ function Game({
                     return;
                 }
 
-                const bgSpeed = getBgSpeed(distance);
-                const barrierSpeed = getObstacleSpeed(distance);
+                const bgSpeed = getBgSpeed(distance, layout.speeds);
+                const barrierSpeed = getObstacleSpeed(distance, layout.speeds);
 
                 const dt = Math.min((now - last) / 1000, 0.05);
                 last = now;
@@ -347,11 +352,11 @@ function Game({
 
                 const scrollDelta = barrierSpeed * dt;
                 roadOffset += scrollDelta;
-                obstacleWorld = updateObstacles(obstacleWorld, scrollDelta, distance);
+                obstacleWorld = updateObstacles(obstacleWorld, scrollDelta, distance, layout);
                 
-                playerVY += PLAYER.gravity * step;
+                playerVY += player.gravity * step;
                 playerY += playerVY * step;
-                playerY = Math.min(playerY, PLAYER.groundY);
+                playerY = Math.min(playerY, player.groundY);
 
                 distance += 0.5 * step;
                 const currentKm = Math.floor(distance);
@@ -382,7 +387,8 @@ function Game({
                     status,
                     playerY,
                     playerVY,
-                    groundY: PLAYER.groundY,
+                    groundY: player.groundY,
+                    layout,
                     obstacles: obstacleWorld.obstacles,
                     distance, 
                     bgIndex,

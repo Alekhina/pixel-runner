@@ -1,4 +1,5 @@
-import { INITIAL_BARRIER_X, OBSTACLE_LAYOUT, PLAYER } from "./config";
+import { INITIAL_BARRIER_X, OBSTACLE_LAYOUT } from "./config";
+import { MOBILE_LAYOUT } from "./layout/mobile";
 import type { GameState, Obstacle } from "./types";
 
 export function buildObstacles(barrierX: number): Obstacle[] {
@@ -17,11 +18,13 @@ export function buildObstacles(barrierX: number): Obstacle[] {
 }
 
 export function createInitialState(): GameState {
+    const layout = MOBILE_LAYOUT;
     return {
         status: "playing",
-        playerY: PLAYER.groundY,
+        playerY: layout.player.groundY,
         playerVY: 0,
-        groundY: PLAYER.groundY,
+        groundY: layout.player.groundY,
+        layout,
         obstacles: buildObstacles(INITIAL_BARRIER_X),
         distance: 0,
         bgIndex: 0,

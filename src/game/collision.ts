@@ -1,4 +1,3 @@
-import { PLAYER } from "./config"; 
 import { Area } from "./types";
 import type { GameState } from "./types";
 
@@ -24,7 +23,7 @@ export function isColliding(state: GameState): boolean {
 }
 
 export function getPlayerHitbox(state: GameState) {
-    const { x, hitbox } = PLAYER;
+    const { x, hitbox } = state.layout.player;
     return ({
         x: x + hitbox.insetX,
         y: state.playerY + hitbox.insetY,

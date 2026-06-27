@@ -1,6 +1,6 @@
 import { GameState } from "./types";
 import { GameAssets } from "./types";
-import { DEBUG_HITBOXES, PLAYER } from "./config";
+import { DEBUG_HITBOXES } from "./config";
 import { Area } from "./types";
 import { getPlayerHitbox } from "./collision";
 
@@ -18,7 +18,7 @@ export function drawFrame(
 }
 
 function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
-    const h = 640;
+    const h = state.layout.canvas.h;
     const bg = assets.backgrounds[state.bgIndex];
     if (!bg?.naturalHeight) return;
 
@@ -44,8 +44,8 @@ function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: 
 function drawRoad(ctx: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
     const road = assets.road;
     if (!road?.naturalHeight) return;
-    const h = 680;
-    const canvasH = 640;
+    const h = state.layout.draw.roadDrawH;
+    const canvasH = state.layout.canvas.h;
     const scale = h / road.naturalHeight;
     const roadW = road.naturalWidth * scale;
     const roadY = canvasH - h;
@@ -86,10 +86,10 @@ function drawPlayer(ctx:CanvasRenderingContext2D, state: GameState, assets: Game
     
     ctx.drawImage(
         characterDraw,
-        PLAYER.x,
+        state.layout.player.x,
         state.playerY,
-        PLAYER.drawW,
-        PLAYER.drawH,
+        state.layout.player.drawW,
+        state.layout.player.drawH,
     );
 }
 

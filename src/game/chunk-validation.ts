@@ -1,9 +1,10 @@
 import { MIN_GROUND_GAP, MIN_PIT_GAP, CHUNK_WIDTH } from "./config";
-import { OBSTACLE_DEFS, type ObstacleLane } from "./obstacle-defs";
+import { MOBILE_LAYOUT } from "./layout/mobile";
+import type { ObstacleLane } from "./obstacle-defs";
 import type { ChunkSpawnItem } from "./types";
 
 function def(kind: ChunkSpawnItem["kind"]) {
-  return OBSTACLE_DEFS[kind];
+  return MOBILE_LAYOUT.obstacles[kind];
 }
 
 function rightEdge(item: ChunkSpawnItem): number {

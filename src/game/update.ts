@@ -1,13 +1,6 @@
-import {
-  CANVAS,
-  CHUNK_WIDTH,
-  DESPAWN_BEHIND_X,
-  DISTANCE_GOAL,
-  INITIAL_BARRIER_X,
-  MIN_CHUNK_GAP,
-  SPAWN_AHEAD_X,
-} from "./config";
+import { DISTANCE_GOAL } from "./config";
 import { createRunSeed, generateChunk, spawnChunkFromItems } from "./generator";
+import type { GameLayout } from "./layout/types";
 import type { Obstacle } from "./types";
 
 export type ObstacleWorld = {
@@ -22,15 +15,24 @@ function getDifficulty(distance: number): number {
   return Math.min(distance / DISTANCE_GOAL, 1);
 }
 
-export function initObstacleWorld(seed = createRunSeed()): ObstacleWorld {
-  const chunkStartX = INITIAL_BARRIER_X;
+export function initObstacleWorld(
+  layout: GameLayout,
+  seed = createRunSeed(),
+): ObstacleWorld {
+  const { world } = layout;
+  const chunkStartX = world.initialBarrierX;
   const items = generateChunk(0, 0, seed);
-  const obstacles = spawnChunkFromItems(items, chunkStartX, 0);
+  const obstacles = spawnChunkFromItems(
+    items,
+    chunkStartX,
+    0,
+    layout.obstacles,
+  );
 
   return {
     obstacles,
     nextChunkIndex: 1,
-    worldEndX: chunkStartX + CHUNK_WIDTH,
+    worldEndX: chunkStartX + world.chunkWidth,
     nextObstacleId: obstacles.length,
     seed,
   };
@@ -40,7 +42,10 @@ export function updateObstacles(
   world: ObstacleWorld,
   scrollDelta: number,
   distance: number,
+  layout: GameLayout,
 ): ObstacleWorld {
+  const { canvas, world: worldLayout } = layout;
+
   let obstacles = world.obstacles
     .map((obs) => ({
       ...obs,
@@ -50,21 +55,26 @@ export function updateObstacles(
         x: obs.hitbox.x - scrollDelta,
       },
     }))
-    .filter((obs) => obs.x + obs.w >= DESPAWN_BEHIND_X);
+    .filter((obs) => obs.x + obs.w >= worldLayout.despawnBehindX);
 
   let { nextChunkIndex, worldEndX, nextObstacleId, seed } = world;
   worldEndX -= scrollDelta;
 
-  const difficulty = getDifficulty(distance);
+  getDifficulty(distance);
 
-  while (worldEndX < CANVAS.w + SPAWN_AHEAD_X) {
-    const chunkStartX = worldEndX + MIN_CHUNK_GAP;
+  while (worldEndX < canvas.w + worldLayout.spawnAheadX) {
+    const chunkStartX = worldEndX + worldLayout.minChunkGap;
     const items = generateChunk(nextChunkIndex, distance, seed);
-    const spawned = spawnChunkFromItems(items, chunkStartX, nextObstacleId);
+    const spawned = spawnChunkFromItems(
+      items,
+      chunkStartX,
+      nextObstacleId,
+      layout.obstacles,
+    );
 
     obstacles = obstacles.concat(spawned);
     nextObstacleId += spawned.length;
-    worldEndX = chunkStartX + CHUNK_WIDTH;
+    worldEndX = chunkStartX + worldLayout.chunkWidth;
     nextChunkIndex += 1;
   }
 

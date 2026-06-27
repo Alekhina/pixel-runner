@@ -1,4 +1,5 @@
 import { CharacterId } from "@/lib/characters";
+import type { GameLayout } from "./layout/types";
 
 export type Area = { 
     x: number,
@@ -27,6 +28,7 @@ export type GameState = {
     playerY: number;
     playerVY: number;
     groundY: number;
+    layout: GameLayout;
     obstacles: Obstacle[];
     distance: number; 
     bgIndex: number;
