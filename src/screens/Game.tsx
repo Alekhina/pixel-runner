@@ -446,7 +446,7 @@ function Game({
     const availableDiscount = endResult ? getDiscount(endResult.distance) : 0;
 
     return (
-        <div className="flex flex-col relative items-center justify-center">
+        <div className="relative flex flex-col items-center justify-center md:fixed md:inset-0 md:h-dvh md:w-full md:overflow-hidden">
             {!isEndModalOpen && (
                 <>
                     <img src="./hud-border.svg"
