@@ -30,7 +30,7 @@ const sizeStyles: Record<PromoSize, { box: string; border: string }> = {
     border: "/border-green-promo-medium.svg",
   },
   large: {
-    box: "h-[97px] w-full",
+    box: "h-[97px] w-full md:w-[342px] md:mx-auto",
     border: "/border-green-promo-large.svg",
   },
 };

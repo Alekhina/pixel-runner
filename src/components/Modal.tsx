@@ -8,7 +8,7 @@ const pressStart2P = Press_Start_2P({
     subsets: ["latin"],
 });
 
-type ModalSize = "default" | "discount";
+type ModalSize = "default" | "discount" | "gameover";
 
 type Props = {
     open: boolean,
@@ -19,21 +19,30 @@ type Props = {
     panelClassName?: string,
     borderClassName?: string,
     borderSrc?: string,
+    borderDesktopSrc?: string,
     size?: ModalSize,
     closeOnBackdrop?: boolean,
 }
 
-const sizeStyles: Record<ModalSize, { panel: string; border: string; borderSrc: string }> = {
+const sizeStyles: Record<ModalSize, { panel: string; border: string; borderSrc: string; borderDesktopSrc: string }> = {
     default: {
-        panel: "h-[478px]",
-        border: "h-[478px] w-[328px]",
+        panel: "h-[478px] md:h-[548px] w-[328px] md:w-[588px]",
+        border: "h-[478px] md:h-[548px] w-[328px] md:w-[588px]",
         borderSrc: "/modal-border.svg",
+        borderDesktopSrc:"/modal-border-desktop.svg",
     },
     discount: {
-        panel: "h-[382px]",
-        border: "h-[382px] w-[328px]",
+        panel: "h-[382px] md:h-[477px] w-[328px] md:w-[588px]",
+        border: "h-[382px] md:h-[477px] w-[328px] md:w-[588px]",
         borderSrc: "/modal-border-discount.svg",
+        borderDesktopSrc:"/modal-border-discount-desktop.svg",
     },
+    gameover: {
+        panel: "h-[424px] md:h-[508px] w-[328px] md:w-[588px]",
+        border: "h-[424px] md:h-[508px] w-[328px] md:w-[588px]",
+        borderSrc: "/modal-border-gameover.svg",        
+        borderDesktopSrc: "/modal-border-gameover-desktop.svg", 
+      },
 };
 
 function Modal({
@@ -45,6 +54,7 @@ function Modal({
     panelClassName = "",
     borderClassName = "",
     borderSrc,
+    borderDesktopSrc,
     size = "default",
     closeOnBackdrop = true,
 }: Props) {
@@ -63,6 +73,7 @@ function Modal({
 
     const sized = sizeStyles[size];
     const frameSrc = borderSrc ?? sized.borderSrc;
+    const desktopSrc = borderDesktopSrc  ?? sized.borderDesktopSrc
 
     return(
         <>
@@ -76,16 +87,23 @@ function Modal({
                 alt=""
                 aria-hidden
                 loading="lazy"
-                className={`pointer-events-none absolute left-1/2 top-1/2 z-[7] -translate-x-1/2 -translate-y-1/2 ${sized.border} ${borderClassName}`.trim()}
+                className={`pointer-events-none absolute left-1/2 top-1/2 z-[7] -translate-x-1/2 -translate-y-1/2 block md:hidden ${sized.border} ${borderClassName}`.trim()}
+            />
+            <img
+                src={desktopSrc}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                className={`pointer-events-none absolute left-1/2 top-1/2 z-[7] -translate-x-1/2 -translate-y-1/2 hidden md:block ${sized.border} ${borderClassName}`.trim()}
             />
             <div
                 className={`
-                absolute left-1/2 top-1/2 z-[6] w-[328px] -translate-x-1/2 -translate-y-1/2
+                absolute left-1/2 top-1/2 z-[6] -translate-x-1/2 -translate-y-1/2
                 ${sized.panel}
                 overflow-hidden
                 bg-black/30 backdrop-blur-md
                 rounded-4xl
-                p-4
+                p-4 md:p-7
                 ${panelClassName}
                 ${className}
                 `.trim()}
@@ -94,12 +112,12 @@ function Modal({
                 {title && (
                 <h2
                     id="modal-title"
-                    className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] text-custom-lime`}
+                    className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] md:text-[32px] text-custom-lime`}
                 >
                     {title}
                 </h2>
                 )}
-                <div className="text-[10px] leading-relaxed">{children}</div>
+                <div className="text-[10px] md:text-[24px] leading-relaxed">{children}</div>
             </div>
         </>
     )
