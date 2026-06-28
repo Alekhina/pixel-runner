@@ -506,14 +506,23 @@ function Game({
             >
                 {discountView && endResult ? (
                 <>
-                    <p className="mb-4 text-[16px] leading-[20px] text-center text-cream-text">
+                    <p className="mb-4 md:mb-7 text-[16px] leading-[20px] md:text-[24px] md:leading-[32px] text-center text-cream-text">
                         Ты открыл промокод на {sessionStats.bestDiscount} ₽.
                         <br />
                         Скопируй его и используй при записи на обучение.
                     </p>
-                    <Promo size="small" code={sessionStats.promoCode ?? "VECTOR-XXXX-XXXX"} />
+                    <Promo
+                        size="small"
+                        code={sessionStats.promoCode ?? "VECTOR-XXXX-XXXX"}
+                        className="md:hidden"
+                    />
+                    <Promo
+                        size="large"
+                        code={sessionStats.promoCode ?? "VECTOR-XXXX-XXXX"}
+                        className="hidden md:block md:mx-auto"
+                    />
                     <Button
-                        className="mb-3 w-full text-black"
+                        className="mb-3 w-full text-black md:mt-3"
                         onClick={handleTakeDiscount}
                         disabled={!sessionStats.promoCode}
                     >
@@ -521,16 +530,16 @@ function Game({
                             ? "скопировано!"
                             : `забрать ${sessionStats.bestDiscount} ₽`}
                     </Button>
-                    <p className="text-cream-text text-[12px] leading-[14px]">
+                    <p className="text-cream-text text-[12px] leading-[14px] md:w-[524px] md:text-center md:leading-[20px] md:text-[16px]">
                         Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.
                     </p>
                 </>
                 ) : endResult ? (
                 <>
-                    <p className="text-[16px] leading-[16px] text-center text-cream-text">
+                    <p className="text-[16px] md:text-[24px] leading-[16px] md:leading-[32px] text-center text-cream-text">
                         Ты прошел {Math.floor(endResult.distance)} км.
                     </p>
-                    <p className="mb-4 leading-[16px] text-[16px] text-center text-cream-text">
+                    <p className="mb-4 md:mb-5  leading-[16px] md:leading-[32px] text-[16px] md:text-[24px] text-center text-cream-text">
                         {getDiscount(endResult.distance) > 0
                             ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`
                             : " Скидка пока не открыта."}
@@ -574,7 +583,7 @@ function Game({
                         />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{sessionStats.bestDiscount} ₽</p>
                     </div>
-                    <div className="flex mb-5 items-end justify-between">                
+                    <div className="flex mb-5 md:mb-3 items-end justify-between">                
                         <p className={`${handjet.className} uppercase text-[24px] text-cream-text`}>Оставшиеся попытки:</p>
                         <span
                             className="mb-3 min-w-1 flex-1 bg-repeat-x text-cream-text"
@@ -595,7 +604,7 @@ function Game({
                     <Button variant="secondary" className="mb-3 w-full text-black" onClick={handleClaimDiscount} disabled={isClaiming || sessionStats.bestDiscount <= 0}>
                         Забрать скидку
                     </Button>
-                    <p className="text-cream-text leading-[14px] text-[12px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>
+                    <p className="text-cream-text leading-[14px] text-[12px] md:w-[524px] md:text-center md:leading-[20px] md:text-[16px]">Скидка действует 7 дней. Не суммируется с другими акциями. Один номер — один промокод.</p>
                 </>
                 ) : null}
             </Modal>
