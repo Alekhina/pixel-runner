@@ -86,6 +86,7 @@ function Game({
     discount: number;
   } | null>(null);
   const [pendingVictory, setPendingVictory] = useState<GameResult | null>(null);
+  const [distanceDisplay, setDistanceDisplay] = useState(0);
 
   useEffect(() => {
     setSessionStats({
@@ -177,8 +178,8 @@ function Game({
   };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const distanceRef = useRef<HTMLSpanElement | null>(null);
-  const progressRef = useRef<ProgressBarHandle | null>(null);
+  const progressRefMobile = useRef<ProgressBarHandle | null>(null);
+  const progressRefDesktop = useRef<ProgressBarHandle | null>(null);
   const activeRunIdRef = useRef(0);
 
   useEffect(() => {
@@ -399,10 +400,11 @@ function Game({
             }
           }
 
-          if (distanceRef.current) {
-            distanceRef.current.textContent = `${Math.floor(distance)}`;
-          }
-          progressRef.current?.setValue(Math.floor(distance));
+          const distanceValue = Math.floor(distance);
+          setDistanceDisplay(distanceValue);
+          progressRefMobile.current?.setValue(distanceValue);
+          progressRefDesktop.current?.setValue(distanceValue);
+
 
           if (distance >= DISTANCE_GOAL) {
             status = "won";
@@ -507,13 +509,13 @@ function Game({
                     className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}
                   >
                     ПРОБЕГ{" "}
-                    <span ref={distanceRef} className="text-custom-yellow">
-                      0
+                    <span className="text-custom-yellow">
+                        {distanceDisplay}
                     </span>
                     /5000 км
                   </div>
                   <ProgressBar
-                    ref={progressRef}
+                    ref={progressRefMobile}
                     max={5000}
                     className="relative top-[0px] mt-2"
                   />
@@ -595,13 +597,13 @@ function Game({
                     className={`${pressStart2P.className} relative text-[16px] text-center text-white`}
                   >
                     ПРОБЕГ{" "}
-                    <span ref={distanceRef} className="text-custom-yellow">
-                      0
+                    <span className="text-custom-yellow">
+                        {distanceDisplay}
                     </span>
                     /5000 км
                   </div>
                   <ProgressBar
-                    ref={progressRef}
+                    ref={progressRefDesktop}
                     max={5000}
                     className="w-[320px] h-[10px] text-[16px] relative mt-2"
                   />
