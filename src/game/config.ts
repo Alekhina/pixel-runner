@@ -1,9 +1,18 @@
-export const DEBUG_HITBOXES = false;
+export const DEBUG_HITBOXES = true;
 
 export const DISTANCE_GOAL = 5000;
 
 export const MILESTONE_POPUP_MS = 2500;
 export const VICTORY_TRANSITION_MS = 1750;
+
+export const GROUND_SNAP_EPS = 15;
+
+/** Сколько ms помнить нажатие прыжка до приземления. */
+export const JUMP_BUFFER_MS = 100;
+
+export function isPlayerGrounded(playerY: number, groundY: number): boolean {
+  return playerY >= groundY - GROUND_SNAP_EPS;
+}
 
 export const CANVAS = { w: 360, h: 640 };
 
@@ -27,15 +36,12 @@ export const PLAYER = {
 export const SPEEDS = {
     bg: 120,
     bgMax: 168,
-    obstacles: 300,
+    obstacles: 450,
     obstaclesMax: 450,
 };
 
 export const OBSTACLE_LAYOUT = [
   { kind: "konus" as const, offsetX: 400, y: 330, w: 60, h: 75 },
-//   { kind: "lake" as const, offsetX: 400, y: 390, w: 90, h: 20 },
-//   { kind: "hole" as const, offsetX: 750, y: 390, w: 90, h: 20 },
-//   { kind: "stop" as const, offsetX: 1000, y: 290, w: 50, h: 120 },
 ];
 
 export const INITIAL_BARRIER_X = 350;

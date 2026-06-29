@@ -1,8 +1,9 @@
-import { CHUNK_WIDTH } from "./config";
 import { isChunkPassable } from "./chunk-validation";
+import { getChunkTemplates, type ChunkTemplate } from "./chunk-templates";
 import type { ObstacleDef } from "./obstacle-defs";
+import type { GameLayout } from "./layout/types";
+import { MOBILE_LAYOUT } from "./layout/mobile";
 import type { ChunkSpawnItem, Obstacle, ObstacleKind } from "./types";
-import { CHUNK_TEMPLATES, ChunkTemplate } from "./chunk-templates";
 
 function mulberry32(seed: number): () => number {
   return () => {
@@ -17,8 +18,10 @@ function pickTemplate(
   distanceKm: number,
   chunkIndex: number,
   seed: number,
+  layout: GameLayout,
 ): ChunkTemplate {
-  const eligible = CHUNK_TEMPLATES.filter((t) => {
+  const templates = getChunkTemplates(layout.id);
+  const eligible = templates.filter((t) => {
     if (distanceKm < t.minKm) return false;
     if (t.maxKm != null && distanceKm > t.maxKm) return false;
     return true;
@@ -66,14 +69,23 @@ export function createRunSeed(): number {
   return (Math.random() * 0xffffffff) >>> 0;
 }
 
+function chunkValidationContext(layout: GameLayout) {
+  return {
+    world: layout.world,
+    // Шаблоны считают зазоры по mobile-ширинам (чанки не масштабируются).
+    obstacles: MOBILE_LAYOUT.obstacles,
+  };
+}
+
 export function generateChunk(
   chunkIndex: number,
   distanceKm: number,
   seed: number,
+  layout: GameLayout,
 ): ChunkSpawnItem[] {
-  const template = pickTemplate(distanceKm, chunkIndex, seed);
+  const template = pickTemplate(distanceKm, chunkIndex, seed, layout);
   const items = template.items.map((item) => ({ ...item }));
-  if (!isChunkPassable(items)) {
+  if (!isChunkPassable(items, chunkValidationContext(layout))) {
     console.warn(`Template ${template.id} failed validation`);
     return [];
   }
@@ -87,7 +99,8 @@ export function spawnChunk(
   chunkStartX: number,
   idStart: number,
   obstacleDefs: Record<ObstacleKind, ObstacleDef>,
+  layout: GameLayout,
 ): Obstacle[] {
-  const items = generateChunk(chunkIndex, difficulty, seed);
+  const items = generateChunk(chunkIndex, difficulty, seed, layout);
   return spawnChunkFromItems(items, chunkStartX, idStart, obstacleDefs);
 }

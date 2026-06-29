@@ -1,12 +1,12 @@
 import type { ObstacleDef } from "../obstacle-defs";
 import type { ObstacleKind } from "../types";
-import { obstacle } from "./obstacle-helpers";
+import { obstacle, playerGroundY } from "./obstacle-helpers";
 import type { GameLayout } from "./types";
 
 const GROUND_LINE = 500;
 
 const obstacles: Record<ObstacleKind, ObstacleDef> = {
-  konus: obstacle(GROUND_LINE, "konus", 64, 64, "ground", {
+  konus: obstacle(GROUND_LINE, "konus", 64, 60, "ground", {
     insetX: 12,
     insetY: 5,
     w: 40,
@@ -30,7 +30,7 @@ const obstacles: Record<ObstacleKind, ObstacleDef> = {
     w: 80,
     h: 20,
   }),
-  hole: obstacle(GROUND_LINE, "hole", 140, 84, "pit", {
+  hole: obstacle(GROUND_LINE, "hole", 140, 36, "pit", {
     insetX: 40,
     insetY: 35,
     w: 60,
@@ -63,7 +63,7 @@ export const MOBILE_LAYOUT: GameLayout = {
     x: -10,
     drawW: 160,
     drawH: 160,
-    groundY: 360,
+    groundY: playerGroundY(GROUND_LINE, 160),
     hitbox: { insetX: 55, insetY: 20, w: 50, h: 120 },
     jumpVY: -20,
     gravity: 1,

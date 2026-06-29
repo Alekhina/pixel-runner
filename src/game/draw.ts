@@ -1,6 +1,6 @@
 import { GameState } from "./types";
 import { GameAssets } from "./types";
-import { DEBUG_HITBOXES } from "./config";
+import { DEBUG_HITBOXES, isPlayerGrounded } from "./config";
 import { Area } from "./types";
 import { getPlayerHitbox } from "./collision";
 
@@ -66,7 +66,7 @@ function drawObstacles(ctx:CanvasRenderingContext2D, state: GameState, assets: G
 function drawPlayer(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets, now: number): void {
     let characterDraw = assets.runFrames[0];
 
-    if (state.playerY >= state.groundY) {
+    if (isPlayerGrounded(state.playerY, state.groundY)) {
         if (Math.floor(now / 80) % 6 === 0) {
             characterDraw = assets.runFrames[0];
         } else if (Math.floor(now / 80) % 6 === 1) {

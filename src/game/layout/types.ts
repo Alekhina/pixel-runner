@@ -29,7 +29,6 @@ export type SpeedLayout = {
 };
 
 export type DrawLayout = {
-  /** Высота отрисовки дороги (спрайт выше canvas, якорится к низу) */
   roadDrawH: number;
 };
 

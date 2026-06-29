@@ -3,8 +3,8 @@
 import { getDiscount } from "@/lib/discount";
 import { CharacterId } from "@/lib/characters";
 import { RUN_FRAMES } from "@/lib/characters";
+import { DISTANCE_GOAL, GROUND_SNAP_EPS, isPlayerGrounded, JUMP_BUFFER_MS } from "@/game/config";
 import { MILESTONE_POPUP_MS, VICTORY_TRANSITION_MS } from "@/game/config";
-import { DISTANCE_GOAL } from "@/game/config";
 import { getGameLayout } from "@/game/layout";
 import { DISCOUNT_TIERS } from "@/lib/discount";
 import { drawFrame } from "@/game/draw";
@@ -283,26 +283,34 @@ function Game({
         let playerY = player.groundY;
         let playerVY = 0;
         let jumpUntil = 0;
+        let jumpBufferedUntil = 0;
         let distance = 0;
         const JUMP_SPRITE_MS = 800;
 
         const passedMilestones = new Set<number>();
-        
+
+        const executeJump = () => {
+            playerVY = player.jumpVY;
+            jumpUntil = performance.now() + JUMP_SPRITE_MS;
+            jumpBufferedUntil = 0;
+        };
+
+        const tryJump = () => {
+            jumpBufferedUntil = performance.now() + JUMP_BUFFER_MS;
+            if (isPlayerGrounded(playerY, player.groundY)) {
+                executeJump();
+            }
+        };
+
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.code === "ArrowUp") {
                 e.preventDefault();
-                if (playerY >= player.groundY) {
-                    playerVY = player.jumpVY;
-                    jumpUntil = performance.now() + JUMP_SPRITE_MS;
-                }
+                tryJump();
             }
         };
-        
+
         const onPointerDown = () => {
-            if (playerY >= player.groundY) {
-                playerVY = player.jumpVY;
-                jumpUntil = performance.now() + JUMP_SPRITE_MS;
-            }
+            tryJump();
         };
         
         canvas.addEventListener("pointerdown", onPointerDown);
@@ -357,6 +365,18 @@ function Game({
                 playerVY += player.gravity * step;
                 playerY += playerVY * step;
                 playerY = Math.min(playerY, player.groundY);
+                if (player.groundY - playerY <= GROUND_SNAP_EPS) {
+                    playerY = player.groundY;
+                    if (playerVY > 0) playerVY = 0;
+                }
+
+                if (
+                    jumpBufferedUntil > 0 &&
+                    now < jumpBufferedUntil &&
+                    isPlayerGrounded(playerY, player.groundY)
+                ) {
+                    executeJump();
+                }
 
                 distance += 0.5 * step;
                 const currentKm = Math.floor(distance);

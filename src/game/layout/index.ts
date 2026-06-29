@@ -9,7 +9,12 @@ export type {
   SpeedLayout,
   WorldLayout,
 } from "./types";
-export { createDesktopLayout } from "./desktop";
+export {
+  createDesktopLayout,
+  DESKTOP_LAYOUT,
+  GROUND_LINE,
+  SCALE,
+} from "./desktop";
 export { MOBILE_LAYOUT } from "./mobile";
 
 const DESKTOP_BREAKPOINT_PX = 768;
