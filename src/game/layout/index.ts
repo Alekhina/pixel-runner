@@ -10,12 +10,15 @@ export type {
   WorldLayout,
 } from "./types";
 export {
+  computeGroundLine,
+  computeRoadDrawH,
+} from "./obstacle-helpers";
+export {
   createDesktopLayout,
   DESKTOP_LAYOUT,
-  GROUND_LINE,
   SCALE,
 } from "./desktop";
-export { createMobileLayout, MOBILE_LAYOUT } from "./mobile";
+export { createMobileLayout, GROUND_LINE, MOBILE_LAYOUT } from "./mobile";
 
 const DESKTOP_BREAKPOINT_PX = 768;
 

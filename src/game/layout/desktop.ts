@@ -1,7 +1,13 @@
 import type { ObstacleDef } from "../obstacle-defs";
 import type { ObstacleKind } from "../types";
 import { MOBILE_LAYOUT } from "./mobile";
-import { obstacleY, playerGroundY, hitboxFromMargins } from "./obstacle-helpers";
+import {
+  computeGroundLine,
+  computeRoadDrawH,
+  hitboxFromMargins,
+  obstacleY,
+  playerGroundY,
+} from "./obstacle-helpers";
 import type { GameLayout } from "./types";
 
 /** Множитель размеров спрайтов player / obstacles (w, h, hitbox). Чанки не масштабируются. */
@@ -9,30 +15,24 @@ export const SCALE: number = 1.2;
 
 const PLAYER_X_OFFSET = 150;
 
-const GROUND_LINE = 515;
-
 function s(n: number): number {
   return Math.round(n * SCALE);
 }
 
-function scaleObstacle(def: ObstacleDef): ObstacleDef {
+function scaleObstacle(
+  def: ObstacleDef,
+  groundLine: number,
+): ObstacleDef {
   const w = s(def.w);
   const h = s(def.h);
   return {
     ...def,
     w,
     h,
-    y: obstacleY(GROUND_LINE, h, def.lane),
+    y: obstacleY(groundLine, h, def.lane),
     hitbox: hitboxFromMargins(w, h, def.hitboxMargins),
   };
 }
-
-const obstacles = Object.fromEntries(
-  Object.entries(MOBILE_LAYOUT.obstacles).map(([kind, def]) => [
-    kind,
-    scaleObstacle(def),
-  ]),
-) as Record<ObstacleKind, ObstacleDef>;
 
 const mobilePlayer = MOBILE_LAYOUT.player;
 const drawW = s(mobilePlayer.drawW);
@@ -46,6 +46,16 @@ const mobileSpeeds = MOBILE_LAYOUT.speeds;
 const OBSTACLE_SPEED_SCALE = 1.5;
 
 function buildDesktopLayout(canvas: { w: number; h: number }): GameLayout {
+  const groundLine = computeGroundLine(canvas.h);
+  const roadDrawH = computeRoadDrawH(canvas.h);
+
+  const obstacles = Object.fromEntries(
+    Object.entries(MOBILE_LAYOUT.obstacles).map(([kind, def]) => [
+      kind,
+      scaleObstacle(def, groundLine),
+    ]),
+  ) as Record<ObstacleKind, ObstacleDef>;
+
   return {
     id: "desktop",
     canvas,
@@ -53,7 +63,7 @@ function buildDesktopLayout(canvas: { w: number; h: number }): GameLayout {
       x: s(mobilePlayer.x) + PLAYER_X_OFFSET,
       drawW,
       drawH,
-      groundY: playerGroundY(GROUND_LINE, drawH),
+      groundY: playerGroundY(groundLine, drawH),
       hitbox: {
         insetX: s(mobilePlayer.hitbox.insetX),
         insetY: s(mobilePlayer.hitbox.insetY),
@@ -74,7 +84,7 @@ function buildDesktopLayout(canvas: { w: number; h: number }): GameLayout {
       obstacles: Math.round(mobileSpeeds.obstacles * OBSTACLE_SPEED_SCALE),
       obstaclesMax: Math.round(mobileSpeeds.obstaclesMax * OBSTACLE_SPEED_SCALE),
     },
-    draw: MOBILE_LAYOUT.draw,
+    draw: { roadDrawH },
   };
 }
 
@@ -86,5 +96,3 @@ export function createDesktopLayout(viewport: {
 }): GameLayout {
   return buildDesktopLayout({ w: viewport.w, h: viewport.h });
 }
-
-export { GROUND_LINE };

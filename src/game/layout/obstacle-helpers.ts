@@ -2,6 +2,33 @@ import type { HitboxMarginsPercent, ObstacleDef } from "../obstacle-defs";
 import type { ObstacleLane } from "../obstacle-defs";
 import type { ObstacleKind } from "../types";
 
+export const DESIGN_CANVAS_H = 640;
+export const DESIGN_ROAD_DRAW_H = 680;
+export const DESIGN_ROAD_SURFACE_OFFSET = 550;
+
+export function computeRoadDrawH(canvasH: number): number {
+  return Math.round((canvasH * DESIGN_ROAD_DRAW_H) / DESIGN_CANVAS_H);
+}
+
+export function computeGroundLine(canvasH: number): number {
+  const scale = canvasH / DESIGN_CANVAS_H;
+  const roadDrawH = Math.round(DESIGN_ROAD_DRAW_H * scale);
+  const surfaceOffset = Math.round(DESIGN_ROAD_SURFACE_OFFSET * scale);
+  return canvasH - roadDrawH + surfaceOffset;
+}
+
+export function repositionObstacles(
+  obstacles: Record<ObstacleKind, ObstacleDef>,
+  groundLine: number,
+): Record<ObstacleKind, ObstacleDef> {
+  return Object.fromEntries(
+    Object.entries(obstacles).map(([kind, def]) => [
+      kind,
+      { ...def, y: obstacleY(groundLine, def.h, def.lane) },
+    ]),
+  ) as Record<ObstacleKind, ObstacleDef>;
+}
+
 export function groundAlignedY(groundLine: number, h: number): number {
   return groundLine - h;
 }

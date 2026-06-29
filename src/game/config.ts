@@ -1,4 +1,4 @@
-export const DEBUG_HITBOXES = true;
+export const DEBUG_HITBOXES = false;
 
 export const DISTANCE_GOAL = 5000;
 

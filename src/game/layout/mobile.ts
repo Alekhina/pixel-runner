@@ -1,58 +1,68 @@
 import type { ObstacleDef } from "../obstacle-defs";
 import type { ObstacleKind } from "../types";
-import { obstacle, playerGroundY } from "./obstacle-helpers";
+import {
+  computeGroundLine,
+  computeRoadDrawH,
+  DESIGN_CANVAS_H,
+  obstacle,
+  playerGroundY,
+  repositionObstacles,
+} from "./obstacle-helpers";
 import type { GameLayout } from "./types";
 
-const GROUND_LINE = 500;
+function buildObstacleDefs(groundLine: number): Record<ObstacleKind, ObstacleDef> {
+  return {
+    konus: obstacle(groundLine, "konus", 58, 60, "ground", {
+      horizontal: 20,
+      vertical: 11,
+    }),
+    stop: obstacle(groundLine, "stop", 48, 120, "ground", {
+      horizontal: 10,
+      vertical: 10,
+    }),
+    exam: obstacle(groundLine, "exam", 70, 120, "air", {
+      horizontal: 10,
+      vertical: 10,
+    }),
+    lake: obstacle(groundLine, "lake", 96, 24, "pit", {
+      horizontal: 10,
+      vertical: 10,
+    }),
+    hole: obstacle(groundLine, "hole", 140, 36, "pit", {
+      horizontal: 17,
+      vertical: 20,
+    }),
+    repair: obstacle(groundLine, "repair", 64, 60, "ground", {
+      horizontal: 20,
+      vertical: 11,
+    }),
+    bricks: obstacle(groundLine, "bricks", 96, 84, "ground", {
+      horizontal: 10,
+      vertical: 10,
+    }),
+    barrier: obstacle(groundLine, "barrier", 64, 64, "ground", {
+      horizontal: 10,
+      vertical: 10,
+    }),
+  };
+}
 
-const obstacles: Record<ObstacleKind, ObstacleDef> = {
-  konus: obstacle(GROUND_LINE, "konus", 58, 60, "ground", {
-    horizontal: 20,
-    vertical: 11,
-  }),
-  stop: obstacle(GROUND_LINE, "stop", 48, 120, "ground", {
-    horizontal: 10,
-    vertical: 10,
-  }),
-  exam: obstacle(GROUND_LINE, "exam", 70, 120, "air", {
-    horizontal: 10,
-    vertical: 10,
-  }),
-  lake: obstacle(GROUND_LINE, "lake", 96, 24, "pit", {
-    horizontal: 10,
-    vertical: 10,
-  }),
-  hole: obstacle(GROUND_LINE, "hole", 140, 36, "pit", {
-    horizontal: 17,
-    vertical: 20,
-  }),
-  repair: obstacle(GROUND_LINE, "repair", 64, 60, "ground", {
-    horizontal: 20,
-    vertical: 11,
-  }),
-  bricks: obstacle(GROUND_LINE, "bricks", 96, 84, "ground", {
-    horizontal: 10,
-    vertical: 10,
-  }),
-  barrier: obstacle(GROUND_LINE, "barrier", 64, 64, "ground", {
-    horizontal: 10,
-    vertical: 10,
-  }),
-};
+const PRESET_GROUND_LINE = computeGroundLine(DESIGN_CANVAS_H);
+const presetObstacles = buildObstacleDefs(PRESET_GROUND_LINE);
 
 export const MOBILE_LAYOUT: GameLayout = {
   id: "mobile",
-  canvas: { w: 360, h: 640 },
+  canvas: { w: 360, h: DESIGN_CANVAS_H },
   player: {
     x: -10,
     drawW: 160,
     drawH: 160,
-    groundY: playerGroundY(GROUND_LINE, 160),
+    groundY: playerGroundY(PRESET_GROUND_LINE, 160),
     hitbox: { insetX: 55, insetY: 20, w: 50, h: 120 },
     jumpVY: -20,
     gravity: 1,
   },
-  obstacles,
+  obstacles: presetObstacles,
   world: {
     chunkWidth: 860,
     minGroundGap: 150,
@@ -69,19 +79,38 @@ export const MOBILE_LAYOUT: GameLayout = {
     obstaclesMax: 450,
   },
   draw: {
-    roadDrawH: 680,
+    roadDrawH: computeRoadDrawH(DESIGN_CANVAS_H),
   },
 };
 
-/** Mobile: игровые параметры из пресета + canvas под viewport. */
+function applyRoadAnchoredLayout(
+  base: GameLayout,
+  canvas: { w: number; h: number },
+): GameLayout {
+  const groundLine = computeGroundLine(canvas.h);
+  const roadDrawH = computeRoadDrawH(canvas.h);
+
+  return {
+    ...base,
+    canvas,
+    draw: { roadDrawH },
+    obstacles: repositionObstacles(base.obstacles, groundLine),
+    player: {
+      ...base.player,
+      groundY: playerGroundY(groundLine, base.player.drawH),
+    },
+  };
+}
+
+/** Mobile: canvas под viewport + GROUND_LINE по дороге. */
 export function createMobileLayout(viewport: {
   w: number;
   h: number;
 }): GameLayout {
-  return {
-    ...MOBILE_LAYOUT,
-    canvas: { w: viewport.w, h: viewport.h },
-  };
+  return applyRoadAnchoredLayout(MOBILE_LAYOUT, {
+    w: viewport.w,
+    h: viewport.h,
+  });
 }
 
-export { GROUND_LINE };
+export { PRESET_GROUND_LINE as GROUND_LINE };
