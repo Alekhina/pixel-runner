@@ -7,7 +7,6 @@ export const VICTORY_TRANSITION_MS = 1750;
 
 export const GROUND_SNAP_EPS = 15;
 
-/** Сколько ms помнить нажатие прыжка до приземления. */
 export const JUMP_BUFFER_MS = 100;
 
 export function isPlayerGrounded(playerY: number, groundY: number): boolean {
@@ -36,7 +35,7 @@ export const PLAYER = {
 export const SPEEDS = {
     bg: 120,
     bgMax: 168,
-    obstacles: 450,
+    obstacles: 300,
     obstaclesMax: 450,
 };
 

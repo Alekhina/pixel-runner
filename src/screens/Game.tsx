@@ -466,7 +466,7 @@ function Game({
     const availableDiscount = endResult ? getDiscount(endResult.distance) : 0;
 
     return (
-        <div className="relative flex flex-col items-center justify-center md:fixed md:inset-0 md:h-dvh md:w-full md:overflow-hidden">
+        <div className="fixed inset-0 flex h-dvh w-full flex-col items-center justify-center overflow-hidden">
             {!isEndModalOpen && (
                 <>
                     <img src="./hud-border.svg"
@@ -616,11 +616,13 @@ function Game({
                         />
                         <p className={`${handjet.className} uppercase text-[24px] text-custom-yellow`}>{sessionStats.attemptsLeft}</p>
                     </div>
-                    {sessionStats.attemptsLeft > 0 ? (
-                    <Button className="mb-2 w-full text-black" onClick={handleRetry}>
+                    <Button
+                        className="mb-2 w-full text-black"
+                        onClick={handleRetry}
+                        disabled={sessionStats.attemptsLeft <= 0}
+                    >
                         Новый заезд
                     </Button>
-                    ) : null}
                     <Button variant="secondary" className="mb-3 w-full text-black" onClick={handleClaimDiscount} disabled={isClaiming || sessionStats.bestDiscount <= 0}>
                         Забрать скидку
                     </Button>

@@ -6,53 +6,37 @@ import type { GameLayout } from "./types";
 const GROUND_LINE = 500;
 
 const obstacles: Record<ObstacleKind, ObstacleDef> = {
-  konus: obstacle(GROUND_LINE, "konus", 64, 60, "ground", {
-    insetX: 12,
-    insetY: 5,
-    w: 40,
-    h: 50,
+  konus: obstacle(GROUND_LINE, "konus", 58, 60, "ground", {
+    horizontal: 20,
+    vertical: 11,
   }),
   stop: obstacle(GROUND_LINE, "stop", 48, 120, "ground", {
-    insetX: 6,
-    insetY: 5,
-    w: 40,
-    h: 110,
+    horizontal: 10,
+    vertical: 10,
   }),
   exam: obstacle(GROUND_LINE, "exam", 70, 120, "air", {
-    insetX: 6,
-    insetY: 5,
-    w: 45,
-    h: 110,
+    horizontal: 10,
+    vertical: 10,
   }),
   lake: obstacle(GROUND_LINE, "lake", 96, 24, "pit", {
-    insetX: 8,
-    insetY: 4,
-    w: 80,
-    h: 20,
+    horizontal: 10,
+    vertical: 10,
   }),
   hole: obstacle(GROUND_LINE, "hole", 140, 36, "pit", {
-    insetX: 40,
-    insetY: 35,
-    w: 60,
-    h: 14,
+    horizontal: 17,
+    vertical: 20,
   }),
   repair: obstacle(GROUND_LINE, "repair", 64, 60, "ground", {
-    insetX: 11,
-    insetY: 12,
-    w: 40,
-    h: 40,
+    horizontal: 20,
+    vertical: 11,
   }),
   bricks: obstacle(GROUND_LINE, "bricks", 96, 84, "ground", {
-    insetX: 10,
-    insetY: 30,
-    w: 70,
-    h: 28,
+    horizontal: 10,
+    vertical: 10,
   }),
   barrier: obstacle(GROUND_LINE, "barrier", 64, 64, "ground", {
-    insetX: 7,
-    insetY: 5,
-    w: 50,
-    h: 60,
+    horizontal: 10,
+    vertical: 10,
   }),
 };
 
@@ -88,5 +72,16 @@ export const MOBILE_LAYOUT: GameLayout = {
     roadDrawH: 680,
   },
 };
+
+/** Mobile: игровые параметры из пресета + canvas под viewport. */
+export function createMobileLayout(viewport: {
+  w: number;
+  h: number;
+}): GameLayout {
+  return {
+    ...MOBILE_LAYOUT,
+    canvas: { w: viewport.w, h: viewport.h },
+  };
+}
 
 export { GROUND_LINE };

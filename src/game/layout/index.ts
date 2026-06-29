@@ -1,5 +1,5 @@
 import { createDesktopLayout } from "./desktop";
-import { MOBILE_LAYOUT } from "./mobile";
+import { createMobileLayout } from "./mobile";
 import type { GameLayout } from "./types";
 
 export type {
@@ -15,7 +15,7 @@ export {
   GROUND_LINE,
   SCALE,
 } from "./desktop";
-export { MOBILE_LAYOUT } from "./mobile";
+export { createMobileLayout, MOBILE_LAYOUT } from "./mobile";
 
 const DESKTOP_BREAKPOINT_PX = 768;
 
@@ -26,5 +26,5 @@ export function getGameLayout(viewport: {
   if (viewport.w >= DESKTOP_BREAKPOINT_PX) {
     return createDesktopLayout(viewport);
   }
-  return MOBILE_LAYOUT;
+  return createMobileLayout(viewport);
 }

@@ -1,7 +1,7 @@
 import type { ObstacleDef } from "../obstacle-defs";
 import type { ObstacleKind } from "../types";
 import { MOBILE_LAYOUT } from "./mobile";
-import { obstacleY, playerGroundY } from "./obstacle-helpers";
+import { obstacleY, playerGroundY, hitboxFromMargins } from "./obstacle-helpers";
 import type { GameLayout } from "./types";
 
 /** Множитель размеров спрайтов player / obstacles (w, h, hitbox). Чанки не масштабируются. */
@@ -16,18 +16,14 @@ function s(n: number): number {
 }
 
 function scaleObstacle(def: ObstacleDef): ObstacleDef {
+  const w = s(def.w);
   const h = s(def.h);
   return {
     ...def,
-    w: s(def.w),
+    w,
     h,
     y: obstacleY(GROUND_LINE, h, def.lane),
-    hitbox: {
-      insetX: s(def.hitbox!.insetX),
-      insetY: s(def.hitbox!.insetY),
-      w: s(def.hitbox!.w),
-      h: s(def.hitbox!.h),
-    },
+    hitbox: hitboxFromMargins(w, h, def.hitboxMargins),
   };
 }
 
