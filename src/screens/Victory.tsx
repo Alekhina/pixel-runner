@@ -89,7 +89,7 @@ function Victory({
             Ты добрался до Кибертрака Вектор. Скидка {bestDiscount} ₽ открыта!
           </p>
         </div>
-        <div className="mt-auto md:mt-[251px] flex w-full md:w-[342px] flex-col gap-5 md:gap-1">
+        <div className="mt-auto md:mt-60 flex w-full md:w-[342px] flex-col gap-5 md:gap-1">
           <div className="block w-full md:hidden">
             <Promo size="medium" code={promo} className="mb-0" />
           </div>

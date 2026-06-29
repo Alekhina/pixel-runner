@@ -78,7 +78,7 @@ function Modal({
     return(
         <>
             <div
-                className="absolute left-1/2 top-1/2 z-[5] h-[640px] w-[360px] -translate-x-1/2 -translate-y-1/2 bg-black/40"
+                className="fixed inset-0 z-[5] bg-black/40"
                 aria-hidden
                 onClick={closeOnBackdrop ? onClose : undefined}
             />
