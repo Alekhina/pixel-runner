@@ -795,7 +795,7 @@ function Game({
             </div>
           </div>
 
-          <div className="hidden md:flex absolute bottom-6 inset-x-0 justify-between px-20 pointer-events-none z-[2]">
+          <div className="hidden md:flex absolute bottom-9 inset-x-0 justify-between px-20 pointer-events-none z-[2]">
             <span
               className={`${pressStart2P.className} text-[16px] uppercase text-cream-text`}
             >

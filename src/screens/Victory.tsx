@@ -77,8 +77,8 @@ function Victory({
 
   return (
     <>
-      <div className="flex h-screen w-full flex-col items-center mx-auto bg-[url('/bg-victory-mobile.png')] md:bg-[url('/bg-victory-main.png')] bg-cover bg-center bg-no-repeat px-[16px] pb-[102px] md:pb-[100px] pt-[62px] md:pt-[45px]">
-        <div className="flex flex-col items-center gap-1">
+      <div className="flex h-screen w-full flex-col items-center mx-auto bg-[url('/bg-victory-mobile.png')] md:bg-[url('/bg-victory-main.png')] bg-cover bg-center bg-no-repeat px-[16px] pb-[102px] md:pb-[100px] pt-[40px] md:pt-[45px]">
+        <div className="flex flex-col md:gap-1 items-center">
           <h2
             id="modal-title"
             className={`mb-1 text-center ${pressStart2P.className} uppercase text-[18px] md:text-[40px] text-custom-lime`}
@@ -89,7 +89,7 @@ function Victory({
             Ты добрался до Кибертрака Вектор. Скидка {bestDiscount} ₽ открыта!
           </p>
         </div>
-        <div className="mt-auto md:mt-60 flex w-full md:w-[342px] flex-col gap-5 md:gap-1">
+        <div className="mt-51 md:mt-62 flex w-full md:w-[342px] flex-col gap-1">
           <div className="block w-full md:hidden">
             <Promo size="medium" code={promo} className="mb-0" />
           </div>
@@ -109,7 +109,7 @@ function Victory({
             <p className="text-center text-[14px] text-chili-red">{claimError}</p>
           ) : null}
         </div>
-        <p className="text-[12px] pt-[16px] md:text-[16px] text-center text-cream-text w-full md:max-w-[486px]">
+        <p className="text-[12px] pt-[5px] md:pt-[7px] md:text-[16px] text-center text-cream-text w-full md:max-w-[486px]">
           Скидка действует 7 дней. Не суммируется с другими акциями. Один номер
           — один промокод.
         </p>
