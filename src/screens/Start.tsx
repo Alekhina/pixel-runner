@@ -26,7 +26,7 @@ function Start({onClick}: Props) {
                     <p className={`${pressStart2P.className} uppercase leading-normal  text-white `}>Игры для взрослых</p>
                     <p className={`${pressStart2P.className} lowercase leading-none text-custom-lime`}>пора за руль</p>
                 </div>
-                <p className="text-cream-text pt-[14px] md:text-[24px] md:pt-[16px] ">Пройди путь до Кибертрака Вектор <br /> и открой скидку до 5000 ₽ на обучение.</p>
+                <p className="text-cream-text pt-[19px] md:text-[24px] md:pt-[16px] ">Пройди путь до Кибертрака Вектор <br /> и открой скидку до 5000 ₽ на обучение.</p>
             </div>
             <div className="flex w-full flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-end md:gap-0">
                 <span className={`${pressStart2P.className} hidden md:flex flex-row gap-3 text-cream-text md:justify-self-start text-[16px]`}>

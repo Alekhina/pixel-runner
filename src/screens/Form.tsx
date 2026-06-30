@@ -126,7 +126,7 @@ function Form({ onSuccess }: Props) {
                 pb-[32px]
                 "
       >
-        <div className="relative z-10 flex flex-col items-stretch gap-2 pt-[24px] px-[16px] md:gap-1 md:px-[30px] md:pt-[19px]">
+        <div className="relative z-10 flex flex-col items-stretch gap-2.5 pt-[24px] px-[16px] md:gap-1 md:px-[30px] md:pt-[19px]">
           <p className="text-cream-text text-[16px] md:text-[24px] text-center">
             Чтобы выйти на старт, активируй
           </p>
@@ -134,7 +134,7 @@ function Form({ onSuccess }: Props) {
             Driver Mode
           </AccentText>
 
-          <div className="grid grid-cols-1 pt-[8px] gap-y-2 md:grid-cols-[1fr_376px] md:gap-y-4 md:mt-5 md:text-[20px]">
+          <div className="grid grid-cols-1 pt-[8px] gap-y-2.5 md:grid-cols-[1fr_376px] md:gap-y-4 md:mt-5 md:text-[20px]">
             <label
               htmlFor="first-name"
               className="flex items-center gap-2 text-left text-cream-text"
