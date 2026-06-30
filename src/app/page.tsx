@@ -105,6 +105,7 @@ export default function Home() {
                     setScreen("victory");
                   }
                 }}
+                onGoHome={() => setScreen("start")}
               />
             ) : null;
           case "victory":

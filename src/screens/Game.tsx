@@ -13,9 +13,20 @@ import { MILESTONE_POPUP_MS, VICTORY_TRANSITION_MS } from "@/game/config";
 import { getGameLayout } from "@/game/layout";
 import { DISCOUNT_TIERS } from "@/lib/discount";
 import { drawFrame } from "@/game/draw";
-import type { GameAssets, GameResult, GameState } from "@/game/types";
+import type {
+  DrawableImage,
+  GameAssets,
+  GameResult,
+  GameState,
+  ObstacleKind,
+} from "@/game/types";
 import { useRef } from "react";
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { isColliding } from "@/game/collision";
 import { Handjet, Press_Start_2P } from "next/font/google";
 import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
@@ -39,6 +50,7 @@ type Props = {
   promoCode: string | null;
   onSessionUpdate: (session: PlayerSessionState) => void;
   onComplete: (result: GameResult) => void;
+  onGoHome: () => void;
 };
 
 const handjet = Handjet({
@@ -50,6 +62,44 @@ const pressStart2P = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
 });
+
+export type MilestoneLayerHandle = {
+  show: (km: number) => void;
+  hide: () => void;
+};
+
+// Изолированный слой попапа чекпоинта: держит собственное состояние и
+// перерисовывается сам, не вызывая ре-рендер всего Game (с тяжёлым HUD).
+const MilestoneLayer = forwardRef<MilestoneLayerHandle>(
+  function MilestoneLayer(_props, ref) {
+    const [popup, setPopup] = useState<{ km: number; discount: number } | null>(
+      null
+    );
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        show: (km: number) => setPopup({ km, discount: km }),
+        hide: () => setPopup(null),
+      }),
+      []
+    );
+
+    useEffect(() => {
+      if (!popup) return;
+
+      const id = window.setTimeout(() => {
+        setPopup(null);
+      }, MILESTONE_POPUP_MS);
+
+      return () => clearTimeout(id);
+    }, [popup]);
+
+    if (!popup) return null;
+
+    return <Push km={popup.km} discount={popup.discount} />;
+  }
+);
 
 function loadImage(src: string): HTMLImageElement {
   const img = new Image();
@@ -67,6 +117,7 @@ function Game({
   promoCode,
   onSessionUpdate,
   onComplete,
+  onGoHome,
 }: Props) {
   const [endResult, setEndResult] = useState<GameResult | null>(null);
   const [discountView, setDiscountView] = useState(false);
@@ -81,12 +132,8 @@ function Game({
     bestDiscount,
     promoCode,
   });
-  const [milestonePopup, setMilestonePopup] = useState<{
-    km: number;
-    discount: number;
-  } | null>(null);
+  const milestoneLayerRef = useRef<MilestoneLayerHandle | null>(null);
   const [pendingVictory, setPendingVictory] = useState<GameResult | null>(null);
-  const [distanceDisplay, setDistanceDisplay] = useState(0);
 
   useEffect(() => {
     setSessionStats({
@@ -99,21 +146,9 @@ function Game({
   }, [attemptsUsed, attemptsLeft, bestDistanceKm, bestDiscount, promoCode]);
 
   const showMilestoneRef = useRef<(km: number) => void>(() => {});
-
   showMilestoneRef.current = (km: number) => {
-    setMilestonePopup({ km, discount: km }); // скидка = порог
+    milestoneLayerRef.current?.show(km);
   };
-
-  // автоскрытие через 2.5 сек
-  useEffect(() => {
-    if (!milestonePopup) return;
-
-    const id = window.setTimeout(() => {
-      setMilestonePopup(null);
-    }, MILESTONE_POPUP_MS);
-
-    return () => clearTimeout(id);
-  }, [milestonePopup]);
 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -128,12 +163,22 @@ function Game({
     return () => clearTimeout(id);
   }, [pendingVictory]);
 
-  const handleRetry = () => {
+  const handleRetry = async () => {
     if (sessionStats.attemptsLeft <= 0) return;
-    setEndResult(null);
+
+    try {
+      await pendingFinishRef.current.catch(() => {});
+    } catch {
+      // finish failed — still allow retry
+    }
+
     setDiscountView(false);
-    setMilestonePopup(null);
+    milestoneLayerRef.current?.hide();
     setStartError(null);
+    setEndResult(null);
+    setDistanceHud(0);
+    progressRefMobile.current?.setValue(0);
+    progressRefDesktop.current?.setValue(0);
     setRunKey((k) => k + 1);
   };
 
@@ -178,9 +223,27 @@ function Game({
   };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const distanceRefMobile = useRef<HTMLSpanElement | null>(null);
+  const distanceRefDesktop = useRef<HTMLSpanElement | null>(null);
+  const discountRefDesktop = useRef<HTMLSpanElement | null>(null);
   const progressRefMobile = useRef<ProgressBarHandle | null>(null);
   const progressRefDesktop = useRef<ProgressBarHandle | null>(null);
+
+  const setDistanceHud = (value: number) => {
+    const text = String(value);
+    if (distanceRefMobile.current) {
+      distanceRefMobile.current.textContent = text;
+    }
+    if (distanceRefDesktop.current) {
+      distanceRefDesktop.current.textContent = text;
+    }
+    if (discountRefDesktop.current) {
+      discountRefDesktop.current.textContent = String(getDiscount(value));
+    }
+  };
   const activeRunIdRef = useRef(0);
+  const pendingFinishRef = useRef<Promise<void>>(Promise.resolve());
+  const lastCrashResultRef = useRef<GameResult | null>(null);
 
   useEffect(() => {
     const runId = ++activeRunIdRef.current;
@@ -188,42 +251,54 @@ function Game({
     let rafId = 0;
     let cleanup = () => {};
 
-    const finishRunForAttempt = async (result: GameResult) => {
-      if (runId !== activeRunIdRef.current) return;
+    const finishRunForAttempt = (result: GameResult) => {
+      const runIdAtFinish = runId;
 
-      try {
-        const updated = await updateGame({
-          sessionId,
-          action: "finish_attempt",
-          distanceKm: result.distance,
-          reason: result.reason,
-        });
-        if (runId !== activeRunIdRef.current) return;
-
-        applySessionUpdate(updated);
-
-        if (result.reason === "victory") {
-          setPendingVictory(result);
-          return;
+      const task = async () => {
+        if (result.reason === "crash") {
+          lastCrashResultRef.current = result;
+          setEndResult(result);
         }
 
-        setEndResult(result);
-      } catch (error) {
-        if (runId !== activeRunIdRef.current) return;
+        try {
+          const updated = await updateGame({
+            sessionId,
+            action: "finish_attempt",
+            distanceKm: result.distance,
+            reason: result.reason,
+          });
 
-        setStartError(
-          error instanceof Error
-            ? error.message
-            : "Не удалось сохранить результат"
-        );
-        setEndResult(result);
-      }
+          applySessionUpdate(updated);
+
+          if (
+            result.reason === "victory" &&
+            runIdAtFinish === activeRunIdRef.current
+          ) {
+            setPendingVictory(result);
+          }
+        } catch (error) {
+          if (runIdAtFinish !== activeRunIdRef.current) return;
+
+          setStartError(
+            error instanceof Error
+              ? error.message
+              : "Не удалось сохранить результат",
+          );
+          if (result.reason === "crash") {
+            setEndResult(result);
+          }
+        }
+      };
+
+      pendingFinishRef.current = task();
+      return pendingFinishRef.current;
     };
 
     async function startRun() {
       setStartError(null);
 
       try {
+        await pendingFinishRef.current.catch(() => {});
         const updated = await updateGame({
           sessionId,
           action: "start_attempt",
@@ -233,8 +308,11 @@ function Game({
       } catch (error) {
         if (cancelled) return;
         setStartError(
-          error instanceof Error ? error.message : "Не удалось начать заезд"
+          error instanceof Error ? error.message : "Не удалось начать заезд",
         );
+        if (lastCrashResultRef.current) {
+          setEndResult(lastCrashResultRef.current);
+        }
         return;
       }
 
@@ -284,6 +362,7 @@ function Game({
           repair: loadImage("/obstacles/repair.png"),
           bricks: loadImage("/obstacles/bricks.png"),
           barrier: loadImage("/obstacles/barrier.png"),
+          finish_car: loadImage("track/track-1.png"),
         },
       };
 
@@ -327,6 +406,8 @@ function Game({
       const startGameLoop = () => {
         if (cancelled || runId !== activeRunIdRef.current) return;
 
+        lastCrashResultRef.current = null;
+
         let last = performance.now();
         let bgIndex = 0;
         let bgOffset = 0;
@@ -368,6 +449,7 @@ function Game({
 
           const scrollDelta = barrierSpeed * dt;
           roadOffset += scrollDelta;
+
           obstacleWorld = updateObstacles(
             obstacleWorld,
             scrollDelta,
@@ -401,7 +483,7 @@ function Game({
           }
 
           const distanceValue = Math.floor(distance);
-          setDistanceDisplay(distanceValue);
+          setDistanceHud(distanceValue);
           progressRefMobile.current?.setValue(distanceValue);
           progressRefDesktop.current?.setValue(distanceValue);
 
@@ -441,20 +523,77 @@ function Game({
 
             return;
           }
-
           drawFrame(ctx, state, assets, now);
+
           rafId = requestAnimationFrame(loop);
         };
 
         rafId = requestAnimationFrame(loop);
       };
 
-      const bg = backgrounds[0];
-      if (bg.complete && bg.naturalWidth > 0) {
+      const prescaleToCanvas = (
+        img: HTMLImageElement,
+        wCss: number,
+        hCss: number,
+      ): HTMLCanvasElement => {
+        const c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(wCss * dpr));
+        c.height = Math.max(1, Math.round(hCss * dpr));
+        const cctx = c.getContext("2d");
+        if (cctx) {
+          cctx.imageSmoothingEnabled = true;
+          cctx.imageSmoothingQuality = "high";
+          cctx.drawImage(img, 0, 0, c.width, c.height);
+        }
+        return c;
+      };
+
+      const obstacleImages = assets.obstacles as Record<
+        ObstacleKind,
+        HTMLImageElement
+      >;
+
+      const startWithPrescaledAssets = async () => {
+        const sources = [road, ...Object.values(obstacleImages)];
+        await Promise.all(sources.map((im) => im.decode().catch(() => {})));
+        if (cancelled || runId !== activeRunIdRef.current) return;
+
+        const prescaledObstacles = {} as Record<ObstacleKind, DrawableImage>;
+        (Object.keys(obstacleImages) as ObstacleKind[]).forEach((kind) => {
+          const def = layout.obstacles[kind];
+          prescaledObstacles[kind] = prescaleToCanvas(
+            obstacleImages[kind],
+            def.w,
+            def.h,
+          );
+        });
+        assets.obstacles = prescaledObstacles;
+
+        // Road is a wide, soft scrolling texture. Bake it into a capped-size
+        // canvas (aspect preserved) so it is never a multi-megapixel texture
+        // that the GPU re-uploads mid-run. drawRoad derives on-screen width
+        // from the aspect ratio, so capping resolution is visually transparent.
+        const roadAspect = road.naturalWidth / road.naturalHeight;
+        const roadH = layout.draw.roadDrawH;
+        const roadWdisplay = roadH * roadAspect;
+        const ROAD_TEX_MAX_W = 2048;
+        const roadTexW = Math.min(Math.round(roadWdisplay * dpr), ROAD_TEX_MAX_W);
+        const roadTexH = Math.max(1, Math.round(roadTexW / roadAspect));
+        const roadCanvas = document.createElement("canvas");
+        roadCanvas.width = roadTexW;
+        roadCanvas.height = roadTexH;
+        const roadCtx = roadCanvas.getContext("2d");
+        if (roadCtx) {
+          roadCtx.imageSmoothingEnabled = true;
+          roadCtx.imageSmoothingQuality = "high";
+          roadCtx.drawImage(road, 0, 0, roadTexW, roadTexH);
+        }
+        assets.road = roadCanvas;
+
         startGameLoop();
-      } else {
-        bg.onload = startGameLoop;
-      }
+      };
+
+      void startWithPrescaledAssets();
 
       cleanup = () => {
         cancelled = true;
@@ -477,6 +616,9 @@ function Game({
   }
 
   const isEndModalOpen = endResult?.reason === "crash";
+  const isExhaustedWithoutDiscount =
+    sessionStats.attemptsLeft <= 0 &&
+    sessionStats.bestDistanceKm < DISCOUNT_TIERS[0];
   const availableDiscount = endResult ? getDiscount(endResult.distance) : 0;
 
   return (
@@ -509,8 +651,8 @@ function Game({
                     className={`${pressStart2P.className} relative top-[0px] text-[10px] text-center text-white`}
                   >
                     ПРОБЕГ{" "}
-                    <span className="text-custom-yellow">
-                        {distanceDisplay}
+                    <span ref={distanceRefMobile} className="text-custom-yellow">
+                      0
                     </span>
                     /5000 км
                   </div>
@@ -597,8 +739,8 @@ function Game({
                     className={`${pressStart2P.className} relative text-[16px] text-center text-white`}
                   >
                     ПРОБЕГ{" "}
-                    <span className="text-custom-yellow">
-                        {distanceDisplay}
+                    <span ref={distanceRefDesktop} className="text-custom-yellow">
+                      0
                     </span>
                     /5000 км
                   </div>
@@ -644,11 +786,22 @@ function Game({
               </div>
             </div>
           </div>
+
+          <div className="hidden md:flex absolute bottom-6 inset-x-0 justify-between px-20 pointer-events-none z-[2]">
+            <span
+              className={`${pressStart2P.className} text-[16px] uppercase text-cream-text`}
+            >
+              цель: 5000 км
+            </span>
+            <span
+              className={`${pressStart2P.className} text-[16px] uppercase text-cream-text`}
+            >
+              скидка: <span ref={discountRefDesktop}>0</span> ₽
+            </span>
+          </div>
         </>
       )}
-      {milestonePopup && (
-        <Push km={milestonePopup.km} discount={milestonePopup.discount} />
-      )}
+      <MilestoneLayer ref={milestoneLayerRef} />
       {startError && !isEndModalOpen ? (
         <p className="absolute top-[120px] z-10 max-w-[328px] rounded bg-chili-red px-4 py-2 text-center text-[14px] text-white">
           {startError}
@@ -694,14 +847,27 @@ function Game({
           </>
         ) : endResult ? (
           <>
-            <p className="text-[16px] md:text-[24px] leading-[16px] md:leading-[32px] text-center text-cream-text">
-              Ты прошел {Math.floor(endResult.distance)} км.
-            </p>
-            <p className="mb-4 md:mb-5  leading-[16px] md:leading-[32px] text-[16px] md:text-[24px] text-center text-cream-text">
-              {getDiscount(endResult.distance) > 0
-                ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`
-                : " Скидка пока не открыта."}
-            </p>
+            {isExhaustedWithoutDiscount ? (
+              <p className="mb-4 md:mb-5 text-[16px] md:text-[24px] leading-[16px] md:leading-[32px] text-center text-cream-text">
+                Ты прошел {Math.floor(endResult.distance)} км.
+                <br />
+                До скидки не хватило{" "}
+                {DISCOUNT_TIERS[0] - Math.floor(endResult.distance)} км.
+                <br />
+                Попытки закончились.
+              </p>
+            ) : (
+              <>
+                <p className="text-[16px] md:text-[24px] leading-[16px] md:leading-[32px] text-center text-cream-text">
+                  Ты прошел {Math.floor(endResult.distance)} км.
+                </p>
+                <p className="mb-4 md:mb-5  leading-[16px] md:leading-[32px] text-[16px] md:text-[24px] text-center text-cream-text">
+                  {getDiscount(endResult.distance) > 0
+                    ? ` Открыта скидка ${getDiscount(endResult.distance)} ₽.`
+                    : " Скидка пока не открыта."}
+                </p>
+              </>
+            )}
             <div className="flex items-end justify-between">
               <p
                 className={`${handjet.className} uppercase text-[24px] text-cream-text`}
@@ -790,21 +956,29 @@ function Game({
                 {sessionStats.attemptsLeft}
               </p>
             </div>
-            <Button
-              className="mb-2 w-full text-black"
-              onClick={handleRetry}
-              disabled={sessionStats.attemptsLeft <= 0}
-            >
-              Новый заезд
-            </Button>
-            <Button
-              variant="secondary"
-              className="mb-3 w-full text-black"
-              onClick={handleClaimDiscount}
-              disabled={isClaiming || sessionStats.bestDiscount <= 0}
-            >
-              Забрать скидку
-            </Button>
+            {isExhaustedWithoutDiscount ? (
+              <Button className="mb-3 w-full text-black" onClick={onGoHome}>
+                На главную
+              </Button>
+            ) : (
+              <>
+                <Button
+                  className="mb-2 w-full text-black"
+                  onClick={handleRetry}
+                  disabled={sessionStats.attemptsLeft <= 0}
+                >
+                  Новый заезд
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="mb-3 w-full text-black"
+                  onClick={handleClaimDiscount}
+                  disabled={isClaiming || sessionStats.bestDiscount <= 0}
+                >
+                  Забрать скидку
+                </Button>
+              </>
+            )}
             <p className="text-cream-text leading-[14px] text-[12px] md:w-[524px] md:text-center md:leading-[20px] md:text-[16px]">
               Скидка действует 7 дней. Не суммируется с другими акциями. Один
               номер — один промокод.

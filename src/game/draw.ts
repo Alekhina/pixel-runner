@@ -1,8 +1,15 @@
 import { GameState } from "./types";
-import { GameAssets } from "./types";
+import { GameAssets, DrawableImage } from "./types";
 import { DEBUG_HITBOXES, isPlayerGrounded } from "./config";
 import { Area } from "./types";
 import { getPlayerHitbox } from "./collision";
+
+function imgW(img: DrawableImage): number {
+    return img instanceof HTMLImageElement ? img.naturalWidth : img.width;
+}
+function imgH(img: DrawableImage): number {
+    return img instanceof HTMLImageElement ? img.naturalHeight : img.height;
+}
 
 export function drawFrame(
     ctx: CanvasRenderingContext2D,
@@ -11,7 +18,7 @@ export function drawFrame(
     now: number,
 ): void {
     drawBackground(ctx, state, assets);
-    drawRoad(ctx, state, assets); 
+    drawRoad(ctx, state, assets);
     drawObstacles(ctx, state, assets);
     drawPlayer(ctx, state, assets, now);
     drawDebugHitboxes(ctx, state);
@@ -43,11 +50,11 @@ function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: 
 
 function drawRoad(ctx: CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
     const road = assets.road;
-    if (!road?.naturalHeight) return;
+    if (!imgH(road)) return;
     const h = state.layout.draw.roadDrawH;
     const canvasH = state.layout.canvas.h;
-    const scale = h / road.naturalHeight;
-    const roadW = road.naturalWidth * scale;
+    const scale = h / imgH(road);
+    const roadW = imgW(road) * scale;
     const roadY = canvasH - h;
     const x1 = -(state.roadOffset % roadW);
     ctx.drawImage(road, x1, roadY, roadW, h);

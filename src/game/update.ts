@@ -8,6 +8,7 @@ export type ObstacleWorld = {
   worldEndX: number;
   nextObstacleId: number;
   seed: number;
+  finishCarSpawned: boolean;
 };
 
 function getDifficulty(distance: number): number {
@@ -33,6 +34,7 @@ export function initObstacleWorld(  layout: GameLayout,
     worldEndX: chunkStartX + world.chunkWidth,
     nextObstacleId: obstacles.length,
     seed,
+    finishCarSpawned: false,
   };
 }
 
@@ -76,11 +78,31 @@ export function updateObstacles(
     nextChunkIndex += 1;
   }
 
+  let { finishCarSpawned } = world;
+
+  if (!finishCarSpawned && distance >= DISTANCE_GOAL - 50) {
+    finishCarSpawned = true;
+    const def = layout.obstacles.finish_car;
+    const mobileFinishCarOffsetX = layout.id === "mobile" ? 50 : 0;
+    const spawnX = canvas.w + layout.world.spawnAheadX + mobileFinishCarOffsetX;
+    obstacles = obstacles.concat({
+      id: "finish_car",
+      kind: "finish_car",
+      x: spawnX,
+      y: def.y,
+      w: def.w,
+      h: def.h,
+      hitbox: { x: spawnX, y: def.y, w: 0, h: 0 },
+    });
+    nextObstacleId += 1;
+  }
+
   return {
     obstacles,
     nextChunkIndex,
     worldEndX,
     nextObstacleId,
     seed,
+    finishCarSpawned,
   };
 }

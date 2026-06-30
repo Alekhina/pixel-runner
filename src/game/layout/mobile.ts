@@ -12,7 +12,7 @@ import type { GameLayout } from "./types";
 
 function buildObstacleDefs(groundLine: number): Record<ObstacleKind, ObstacleDef> {
   return {
-    konus: obstacle(groundLine, "konus", 58, 60, "ground", {
+    konus: obstacle(groundLine, "konus", 54, 60, "ground", {
       horizontal: 20,
       vertical: 11,
     }),
@@ -43,6 +43,10 @@ function buildObstacleDefs(groundLine: number): Record<ObstacleKind, ObstacleDef
     barrier: obstacle(groundLine, "barrier", 64, 64, "ground", {
       horizontal: 10,
       vertical: 10,
+    }),
+    finish_car: obstacle(groundLine, "finish_car", 475, 180, "ground", {
+      horizontal: 50,
+      vertical: 50,
     }),
   };
 }

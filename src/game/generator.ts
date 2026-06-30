@@ -83,6 +83,10 @@ export function generateChunk(
   seed: number,
   layout: GameLayout,
 ): ChunkSpawnItem[] {
+  if (chunkIndex === 0) {
+    return [];
+  }
+
   const template = pickTemplate(distanceKm, chunkIndex, seed, layout);
   const items = template.items.map((item) => ({ ...item }));
   if (!isChunkPassable(items, chunkValidationContext(layout))) {
