@@ -16,9 +16,9 @@ export function isPlayerGrounded(playerY: number, groundY: number): boolean {
 export const CANVAS = { w: 360, h: 640 };
 
 export const CHUNK_WIDTH = 860;
-export const MIN_GROUND_GAP = 150;   // подогнать по jump + speed
-export const MIN_CHUNK_GAP = 300;    // «пустой» отдых между чанками
-export const SPAWN_AHEAD_X = 400;    // спавн за правым краем canvas (360)
+export const MIN_GROUND_GAP = 150;
+export const MIN_CHUNK_GAP = 300;
+export const SPAWN_AHEAD_X = 400;
 export const DESPAWN_BEHIND_X = -120;
 export const MIN_PIT_GAP = 320;
 

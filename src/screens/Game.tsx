@@ -123,6 +123,7 @@ function Game({
   const [discountView, setDiscountView] = useState(false);
   const [runKey, setRunKey] = useState(0);
   const [startError, setStartError] = useState<string | null>(null);
+  const [isGameReady, setIsGameReady] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [promoCopied, setPromoCopied] = useState(false);
   const [sessionStats, setSessionStats] = useState({
@@ -176,6 +177,7 @@ function Game({
     milestoneLayerRef.current?.hide();
     setStartError(null);
     setEndResult(null);
+    setIsGameReady(false);
     setDistanceHud(0);
     progressRefMobile.current?.setValue(0);
     progressRefDesktop.current?.setValue(0);
@@ -251,6 +253,8 @@ function Game({
     let rafId = 0;
     let cleanup = () => {};
 
+    setIsGameReady(false);
+
     const finishRunForAttempt = (result: GameResult) => {
       const runIdAtFinish = runId;
 
@@ -310,6 +314,7 @@ function Game({
         setStartError(
           error instanceof Error ? error.message : "Не удалось начать заезд",
         );
+        setIsGameReady(true);
         if (lastCrashResultRef.current) {
           setEndResult(lastCrashResultRef.current);
         }
@@ -590,6 +595,9 @@ function Game({
         }
         assets.road = roadCanvas;
 
+        if (!cancelled && runId === activeRunIdRef.current) {
+          setIsGameReady(true);
+        }
         startGameLoop();
       };
 
@@ -987,6 +995,15 @@ function Game({
         ) : null}
       </Modal>
       <canvas ref={canvasRef}></canvas>
+      {!isGameReady && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black">
+          <span
+            className={`${pressStart2P.className} text-[16px] uppercase text-cream-text`}
+          >
+            загрузка...
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -83,7 +83,7 @@ export function updateObstacles(
   if (!finishCarSpawned && distance >= DISTANCE_GOAL - 50) {
     finishCarSpawned = true;
     const def = layout.obstacles.finish_car;
-    const mobileFinishCarOffsetX = layout.id === "mobile" ? 50 : 0;
+    const mobileFinishCarOffsetX = layout.id === "mobile" ? 70 : 0;
     const spawnX = canvas.w + layout.world.spawnAheadX + mobileFinishCarOffsetX;
     obstacles = obstacles.concat({
       id: "finish_car",

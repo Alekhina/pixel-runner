@@ -9,12 +9,22 @@ import {
   updateGame,
 } from "@/lib/api-client";
 import type { Screen } from "@/lib/screens";
+import { Press_Start_2P } from "next/font/google";
 import { useCallback, useState } from "react";
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+});
 
 const Game = dynamic(() => import("@/screens/Game"), {
   loading: () => (
-    <div className="flex h-[640px] w-[360px] items-center justify-center mx-auto">
-      Загрузка…
+    <div className="fixed inset-0 flex items-center justify-center bg-black">
+      <span
+        className={`${pressStart2P.className} text-[16px] uppercase text-cream-text`}
+      >
+        загрузка...
+      </span>
     </div>
   ),
   ssr: false,
