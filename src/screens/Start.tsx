@@ -1,6 +1,8 @@
 import React from "react";
+import Image from "next/image";
 import { Press_Start_2P } from "next/font/google";
 import Button from "@/components/Button";
+import ScreenBackground from "@/components/ScreenBackground";
 
 type Props = {
     onClick: () => void,
@@ -14,13 +16,16 @@ const pressStart2P = Press_Start_2P({
 function Start({onClick}: Props) {
     return (
         <div className="
-      flex flex-col justify-between items-center w-full text-center 
+      relative flex flex-col justify-between items-center w-full text-center 
       h-screen pt-16 pb-26 px-4
-      bg-[url('/bg-phone.png')] bg-cover bg-center bg-no-repeat
-
-      md:h-auto md:min-h-screen  md:bg-[url('/bg-main.png')]
+      md:h-auto md:min-h-screen
       md:pt-11 md:pb-15 md:px-12
        ">
+            <ScreenBackground
+                mobileSrc="/bg-phone.png"
+                desktopSrc="/bg-main.png"
+                priority
+            />
             <div className="flex flex-col items-center">
                 <div className="p-0 text-[18px] md:text-[40px] font-normal">
                     <p className={`${pressStart2P.className} uppercase leading-normal  text-white `}>Игры для взрослых</p>

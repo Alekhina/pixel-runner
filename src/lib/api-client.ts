@@ -31,7 +31,7 @@ type ApiError = {
 
 export type GameUpdatePayload = {
   sessionId: string;
-  action: "select_character" | "start_attempt" | "finish_attempt" | "claim_discount";
+  action: "get_session" | "select_character" | "start_attempt" | "finish_attempt" | "claim_discount";
   character?: CharacterId;
   distanceKm?: number;
   reason?: "crash" | "victory";
@@ -80,6 +80,15 @@ export async function updateGame(
   });
 
   return parseResponse<PlayerSessionState>(response);
+}
+
+export async function fetchSession(
+  sessionId: string,
+): Promise<PlayerSessionState> {
+  return updateGame({
+    sessionId,
+    action: "get_session",
+  });
 }
 
 export function mergeSession(

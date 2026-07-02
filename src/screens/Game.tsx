@@ -12,7 +12,7 @@ import {
 import { MILESTONE_POPUP_MS, VICTORY_TRANSITION_MS } from "@/game/config";
 import { getGameLayout } from "@/game/layout";
 import { DISCOUNT_TIERS } from "@/lib/discount";
-import { drawFrame } from "@/game/draw";
+import { drawFrame, drawableH, drawableW } from "@/game/draw";
 import type {
   DrawableImage,
   GameAssets,
@@ -29,6 +29,7 @@ import {
 } from "react";
 import { isColliding } from "@/game/collision";
 import { Handjet, Press_Start_2P } from "next/font/google";
+import NextImage from "next/image";
 import ProgressBar, { type ProgressBarHandle } from "@/components/ProgressBar";
 import Modal from "@/components/Modal";
 import Promo from "@/components/Promo";
@@ -62,6 +63,9 @@ const pressStart2P = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
 });
+
+const FINISH_ATTEMPT_TIMEOUT_MS = 4000;
+const PROMO_COPIED_REDIRECT_MS = 1500;
 
 export type MilestoneLayerHandle = {
   show: (km: number) => void;
@@ -124,6 +128,7 @@ function Game({
   const [runKey, setRunKey] = useState(0);
   const [startError, setStartError] = useState<string | null>(null);
   const [isGameReady, setIsGameReady] = useState(false);
+  const [finishRequestFailed, setFinishRequestFailed] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
   const [promoCopied, setPromoCopied] = useState(false);
   const [sessionStats, setSessionStats] = useState({
@@ -177,6 +182,7 @@ function Game({
     milestoneLayerRef.current?.hide();
     setStartError(null);
     setEndResult(null);
+    setFinishRequestFailed(false);
     setIsGameReady(false);
     setDistanceHud(0);
     progressRefMobile.current?.setValue(0);
@@ -215,13 +221,19 @@ function Game({
 
   const handleTakeDiscount = async () => {
     const code = sessionStats.promoCode;
-    if (!code) return;
+    if (!code || promoCopied) return;
 
     const ok = await copyToClipboard(code);
     if (!ok) return;
 
     setPromoCopied(true);
-    window.setTimeout(() => setPromoCopied(false), 2000);
+    if (promoRedirectTimeoutRef.current != null) {
+      window.clearTimeout(promoRedirectTimeoutRef.current);
+    }
+    promoRedirectTimeoutRef.current = window.setTimeout(() => {
+      promoRedirectTimeoutRef.current = null;
+      onGoHome();
+    }, PROMO_COPIED_REDIRECT_MS);
   };
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -246,6 +258,7 @@ function Game({
   const activeRunIdRef = useRef(0);
   const pendingFinishRef = useRef<Promise<void>>(Promise.resolve());
   const lastCrashResultRef = useRef<GameResult | null>(null);
+  const promoRedirectTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     const runId = ++activeRunIdRef.current;
@@ -255,24 +268,50 @@ function Game({
 
     setIsGameReady(false);
 
+    if (attemptsLeft <= 0) {
+      setStartError(null);
+      setFinishRequestFailed(false);
+      setEndResult({
+        distance: bestDistanceKm,
+        character,
+        reason: "crash",
+      });
+      setIsGameReady(true);
+      return;
+    }
+
     const finishRunForAttempt = (result: GameResult) => {
       const runIdAtFinish = runId;
 
       const task = async () => {
         if (result.reason === "crash") {
           lastCrashResultRef.current = result;
-          setEndResult(result);
         }
 
         try {
-          const updated = await updateGame({
-            sessionId,
-            action: "finish_attempt",
-            distanceKm: result.distance,
-            reason: result.reason,
-          });
+          const updated = await Promise.race([
+            updateGame({
+              sessionId,
+              action: "finish_attempt",
+              distanceKm: result.distance,
+              reason: result.reason,
+            }),
+            new Promise<PlayerSessionState>((_, reject) => {
+              window.setTimeout(() => {
+                reject(new Error("Не удалось сохранить результат: проверь подключение к интернету"));
+              }, FINISH_ATTEMPT_TIMEOUT_MS);
+            }),
+          ]);
 
           applySessionUpdate(updated);
+          setFinishRequestFailed(false);
+
+          if (
+            result.reason === "crash" &&
+            runIdAtFinish === activeRunIdRef.current
+          ) {
+            setEndResult(result);
+          }
 
           if (
             result.reason === "victory" &&
@@ -289,6 +328,7 @@ function Game({
               : "Не удалось сохранить результат",
           );
           if (result.reason === "crash") {
+            setFinishRequestFailed(true);
             setEndResult(result);
           }
         }
@@ -300,6 +340,7 @@ function Game({
 
     async function startRun() {
       setStartError(null);
+      setFinishRequestFailed(false);
 
       try {
         await pendingFinishRef.current.catch(() => {});
@@ -444,7 +485,8 @@ function Game({
           last = now;
           const step = dt * stepHz;
           const bg = assets.backgrounds[bgIndex];
-          const bgW = bg.naturalWidth * (h / bg.naturalHeight);
+          const bgNatH = drawableH(bg);
+          const bgW = bgNatH ? (drawableW(bg) / bgNatH) * h : 0;
           bgOffset += bgSpeed * dt;
 
           if (bgOffset >= bgW && bgIndex < assets.backgrounds.length - 1) {
@@ -559,7 +601,14 @@ function Game({
       >;
 
       const startWithPrescaledAssets = async () => {
-        const sources = [road, ...Object.values(obstacleImages)];
+        const bgImages = backgrounds;
+        const runFrameImages = runFrames;
+        const sources = [
+          road,
+          ...Object.values(obstacleImages),
+          ...bgImages,
+          ...runFrameImages,
+        ];
         await Promise.all(sources.map((im) => im.decode().catch(() => {})));
         if (cancelled || runId !== activeRunIdRef.current) return;
 
@@ -573,6 +622,16 @@ function Game({
           );
         });
         assets.obstacles = prescaledObstacles;
+
+        assets.backgrounds = bgImages.map((bg) => {
+          if (!bg.naturalHeight) return bg;
+          const aspect = bg.naturalWidth / bg.naturalHeight;
+          return prescaleToCanvas(bg, h * aspect, h);
+        });
+
+        assets.runFrames = runFrameImages.map((frame) =>
+          prescaleToCanvas(frame, player.drawW, player.drawH),
+        );
 
         // Road is a wide, soft scrolling texture. Bake it into a capped-size
         // canvas (aspect preserved) so it is never a multi-megapixel texture
@@ -615,22 +674,36 @@ function Game({
 
     return () => {
       cleanup();
+      if (promoRedirectTimeoutRef.current != null) {
+        window.clearTimeout(promoRedirectTimeoutRef.current);
+      }
     };
   }, [character, runKey, sessionId]);
 
-  let characterIcon = "./kodik-icon.svg";
+  let characterIcon = "/kodik-icon.svg";
   if (character === "vekta") {
-    characterIcon = "./vecta-icon.svg";
+    characterIcon = "/vecta-icon.svg";
   }
 
   const isEndModalOpen = endResult?.reason === "crash";
+  const crashDiscount = endResult ? getDiscount(endResult.distance) : 0;
+  const showOfflineFinalDiscount =
+    !!endResult &&
+    finishRequestFailed &&
+    sessionStats.attemptsLeft <= 0 &&
+    crashDiscount > 0;
+  const showOfflineFinalGameOver =
+    !!endResult &&
+    finishRequestFailed &&
+    sessionStats.attemptsLeft <= 0 &&
+    crashDiscount === 0;
   const isExhaustedWithoutDiscount =
     sessionStats.attemptsLeft <= 0 &&
     sessionStats.bestDistanceKm < DISCOUNT_TIERS[0];
   const availableDiscount = endResult ? getDiscount(endResult.distance) : 0;
 
   return (
-    <div className="fixed inset-0 flex h-dvh w-full flex-col items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 flex h-dvh w-full flex-col items-center justify-center overflow-hidden bg-black">
       {!isEndModalOpen && (
         <>
           <div className="block md:hidden">
@@ -652,7 +725,14 @@ function Game({
                   className="pointer-events-none absolute top-4 z-[1]"
                 ></img>
                 <div className="h-[32px] w-[32px] bg-black/30 backdrop-blur-md rounded-lg">
-                  <img src={characterIcon}></img>
+                  <NextImage
+                    src={characterIcon}
+                    alt=""
+                    width={32}
+                    height={32}
+                    sizes="32px"
+                    className="h-[32px] w-[32px]"
+                  />
                 </div>
                 <div id="progress" className="flex flex-col relative top-[0px]">
                   <div
@@ -709,7 +789,14 @@ function Game({
                 className="absolute z-[1] inset-0 w-full h-full pointer-events-none"
               />
               <div className="relative w-full h-full flex items-center justify-center bg-black/30 backdrop-blur-md rounded-3xl">
-                <img src={characterIcon} className="h-[82px] w-[82px]" alt="" />
+                <NextImage
+                  src={characterIcon}
+                  alt=""
+                  width={82}
+                  height={82}
+                  sizes="82px"
+                  className="h-[82px] w-[82px]"
+                />
               </div>
             </div>
 
@@ -819,10 +906,59 @@ function Game({
         open={isEndModalOpen}
         onClose={() => {}}
         closeOnBackdrop={false}
-        size={discountView ? "discount" : "default"}
-        title={discountView ? "СКИДКА У ТЕБЯ!" : "Заезд завершен!"}
+        size={
+          showOfflineFinalDiscount
+            ? "discount"
+            : showOfflineFinalGameOver || isExhaustedWithoutDiscount
+              ? "gameover"
+              : discountView
+                ? "discount"
+                : "default"
+        }
+        title={
+          showOfflineFinalDiscount
+            ? "СКИДКА У ТЕБЯ!"
+            : showOfflineFinalGameOver
+              ? "Заезд завершен!"
+              : discountView
+                ? "СКИДКА У ТЕБЯ!"
+                : "Заезд завершен!"
+        }
       >
-        {discountView && endResult ? (
+        {showOfflineFinalDiscount && endResult ? (
+          <>
+            <p className="mb-4 md:mb-7 text-[16px] leading-[20px] md:text-[24px] md:leading-[32px] text-center text-cream-text">
+              Ты прошел {Math.floor(endResult.distance)} км.
+              <br />
+              Открыта скидка {crashDiscount} ₽.
+            </p>
+            <p className="mb-4 md:mb-7 text-[12px] leading-[14px] md:text-[16px] md:leading-[20px] text-center text-cream-text">
+              Результат этого заезда не удалось сохранить из-за проблем с сетью.
+              Вернись на главный экран и повтори попытку онлайн.
+            </p>
+            <Button className="mb-3 w-full text-black" onClick={onGoHome}>
+              На главную
+            </Button>
+          </>
+        ) : showOfflineFinalGameOver && endResult ? (
+          <>
+            <p className="mb-4 md:mb-5 text-[16px] md:text-[24px] leading-[16px] md:leading-[32px] text-center text-cream-text">
+              Ты прошел {Math.floor(endResult.distance)} км.
+              <br />
+              До скидки не хватило{" "}
+              {DISCOUNT_TIERS[0] - Math.floor(endResult.distance)} км.
+              <br />
+              Попытки закончились.
+            </p>
+            <p className="mb-4 md:mb-7 text-[12px] leading-[14px] md:text-[16px] md:leading-[20px] text-center text-cream-text">
+              Результат этого заезда не удалось сохранить из-за проблем с сетью.
+              Вернись на главный экран и повтори попытку онлайн.
+            </p>
+            <Button className="mb-3 w-full text-black" onClick={onGoHome}>
+              На главную
+            </Button>
+          </>
+        ) : discountView && endResult ? (
           <>
             <p className="mb-4 md:mb-7 text-[16px] leading-[20px] md:text-[24px] md:leading-[32px] text-center text-cream-text">
               Ты открыл промокод на {sessionStats.bestDiscount} ₽.
@@ -842,7 +978,7 @@ function Game({
             <Button
               className="mb-3 w-full text-black md:mt-3"
               onClick={handleTakeDiscount}
-              disabled={!sessionStats.promoCode}
+              disabled={!sessionStats.promoCode || promoCopied}
             >
               {promoCopied
                 ? "скопировано!"

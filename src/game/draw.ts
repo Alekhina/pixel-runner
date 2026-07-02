@@ -4,11 +4,18 @@ import { DEBUG_HITBOXES, isPlayerGrounded } from "./config";
 import { Area } from "./types";
 import { getPlayerHitbox } from "./collision";
 
-function imgW(img: DrawableImage): number {
+export function drawableW(img: DrawableImage): number {
     return img instanceof HTMLImageElement ? img.naturalWidth : img.width;
 }
-function imgH(img: DrawableImage): number {
+export function drawableH(img: DrawableImage): number {
     return img instanceof HTMLImageElement ? img.naturalHeight : img.height;
+}
+
+function imgW(img: DrawableImage): number {
+    return drawableW(img);
+}
+function imgH(img: DrawableImage): number {
+    return drawableH(img);
 }
 
 export function drawFrame(
@@ -27,18 +34,18 @@ export function drawFrame(
 function drawBackground(ctx:CanvasRenderingContext2D, state: GameState, assets: GameAssets): void {
     const h = state.layout.canvas.h;
     const bg = assets.backgrounds[state.bgIndex];
-    if (!bg?.naturalHeight) return;
+    const bgNatH = imgH(bg);
+    if (!bgNatH) return;
 
-    const scale = h / bg.naturalHeight;
-    const bgW = bg.naturalWidth * scale;
+    const bgW = (imgW(bg) / bgNatH) * h;
     const nextBg = assets.backgrounds[state.bgIndex + 1];
+    const nextNatH = imgH(nextBg);
 
-    if (nextBg?.naturalHeight) {
+    if (nextNatH) {
         const x = -state.bgOffset;
         ctx.drawImage(bg, x, 0, bgW, h);
 
-        const nextScale = h / nextBg.naturalHeight;
-        const nextW = nextBg.naturalWidth * nextScale;
+        const nextW = (imgW(nextBg) / nextNatH) * h;
         ctx.drawImage(nextBg, x + bgW, 0, nextW, h);
         return;
     }

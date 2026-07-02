@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { useState } from "react";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
@@ -13,6 +14,7 @@ import { validateLeadField, validateLeadForm } from "@/lib/form-validation";
 import { formatPhoneInput } from "@/lib/form-validation";
 import { isLeadFormValid } from "@/lib/form-validation";
 import { submitLead, type PlayerSessionState } from "@/lib/api-client";
+import ScreenBackground from "@/components/ScreenBackground";
 
 type Props = {
   onSuccess: (session: PlayerSessionState) => void;
@@ -93,13 +95,15 @@ function Form({ onSuccess }: Props) {
 
   return (
     <div
-      className="relative mx-auto h-screen w-full 
-            bg-[url('/bg-form-mobile.png')] bg-cover bg-center bg-no-repeat
-			md:bg-[url('/bg-form-main.png')]
+      className="relative mx-auto h-screen w-full
             md:h-auto md:min-h-screen
             
         "
     >
+      <ScreenBackground
+        mobileSrc="/bg-form-mobile.png"
+        desktopSrc="/bg-form-main.png"
+      />
       <img
         src="/form-border.svg"
         alt=""
@@ -300,16 +304,20 @@ function Form({ onSuccess }: Props) {
         </div>
       </div>
       <div className="hidden xl:block absolute  bottom-0 right-0 w-[276px] h-[414px] z-50">
-        <img
+        <Image
           src="/kodik-person.png"
           alt=""
+          width={276}
+          height={414}
           loading="lazy"
           className="absolute w-[276px] h-[414px] bottom-0 xl:right-[102px] 2xl:bottom-35 2xl:right-[302px]"
           aria-hidden
         />
-        <img
+        <Image
           src="/vecta-person.png"
           alt=""
+          width={146}
+          height={354}
           loading="lazy"
           className="absolute w-[146px] h-[354px] bottom-0 xl:right-[74px] 2xl:bottom-35 2xl:right-[274px]"
           aria-hidden

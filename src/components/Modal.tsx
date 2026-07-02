@@ -1,7 +1,7 @@
 "use client";
 
 import { Press_Start_2P } from "next/font/google";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 const pressStart2P = Press_Start_2P({
     weight: "400",
@@ -58,15 +58,67 @@ function Modal({
     size = "default",
     closeOnBackdrop = true,
 }: Props) {
+    const panelRef = useRef<HTMLDivElement | null>(null);
+    const previousFocusRef = useRef<HTMLElement | null>(null);
+
     useEffect(() => {
         if (!open) return;
 
+        const panel = panelRef.current;
+        if (!panel) return;
+
+        previousFocusRef.current = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+        const getFocusableElements = (): HTMLElement[] =>
+            Array.from(
+                panel.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+                )
+            ).filter((el) => !el.hasAttribute("disabled") && el.getAttribute("aria-hidden") !== "true");
+
+        const focusable = getFocusableElements();
+        (focusable[0] ?? panel).focus();
+
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") onClose();
+            if (e.key === "Escape") {
+                onClose();
+                return;
+            }
+
+            if (e.key !== "Tab") return;
+
+            const items = getFocusableElements();
+            if (items.length === 0) {
+                e.preventDefault();
+                panel.focus();
+                return;
+            }
+
+            const first = items[0];
+            const last = items[items.length - 1];
+            const active = document.activeElement as HTMLElement | null;
+
+            if (e.shiftKey) {
+                if (active === first || !panel.contains(active)) {
+                    e.preventDefault();
+                    last.focus();
+                }
+                return;
+            }
+
+            if (active === last || !panel.contains(active)) {
+                e.preventDefault();
+                first.focus();
+            }
         };
 
         window.addEventListener("keydown", onKeyDown);
-        return () => window.removeEventListener("keydown", onKeyDown);
+        return () => {
+            window.removeEventListener("keydown", onKeyDown);
+            previousFocusRef.current?.focus();
+        };
     }, [open, onClose]);
 
     if (!open) return null;
@@ -97,6 +149,11 @@ function Modal({
                 className={`pointer-events-none absolute left-1/2 top-1/2 z-[7] -translate-x-1/2 -translate-y-1/2 hidden md:block ${sized.border} ${borderClassName}`.trim()}
             />
             <div
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby={title ? "modal-title" : undefined}
+                tabIndex={-1}
                 className={`
                 absolute left-1/2 top-1/2 z-[6] -translate-x-1/2 -translate-y-1/2
                 ${sized.panel}

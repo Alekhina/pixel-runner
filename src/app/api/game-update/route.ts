@@ -7,11 +7,13 @@ import { PlayerStoreError } from "@/lib/player";
 import {
   claimDiscount,
   finishAttempt,
+  getPlayerBySessionId,
   setCharacter,
   startAttempt,
 } from "@/lib/players-store";
 
 const GAME_UPDATE_ACTIONS = [
+  "get_session",
   "select_character",
   "start_attempt",
   "finish_attempt",
@@ -125,6 +127,15 @@ export async function POST(request: Request) {
         }
         player = await setCharacter(sessionId, character);
         break;
+
+      case "get_session": {
+        const existing = await getPlayerBySessionId(sessionId);
+        if (!existing) {
+          throw new PlayerStoreError("Сессия не найдена", "SESSION_NOT_FOUND");
+        }
+        player = existing;
+        break;
+      }
 
       case "start_attempt":
         player = await startAttempt(sessionId);

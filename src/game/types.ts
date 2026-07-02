@@ -44,9 +44,9 @@ export type GameResult = {
 export type DrawableImage = HTMLImageElement | HTMLCanvasElement;
 
 export type GameAssets = {
-    backgrounds: HTMLImageElement[];
+    backgrounds: DrawableImage[];
     road: DrawableImage;
-    runFrames: HTMLImageElement[];
+    runFrames: DrawableImage[];
     obstacles: Record<ObstacleKind, DrawableImage>;
 };
 

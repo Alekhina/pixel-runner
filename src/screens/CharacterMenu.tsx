@@ -8,6 +8,7 @@ import { useState } from "react";
 import { CharacterId } from "@/lib/characters";
 import Button from "@/components/Button";
 import AccentText from "@/components/AccentText";
+import ScreenBackground from "@/components/ScreenBackground";
 
 type Props = {
   value: CharacterId | null;
@@ -20,7 +21,11 @@ function CharacterMenu({ value, onChange, onClick, disabled = false }: Props) {
   // const [character, setCharacter] = useState<CharacterId | null>(null);
 
   return (
-    <div className="flex min-h-0 flex-col flex-1 gap-11 md:justify-between items-center w-full h-dvh max-h-dvh overflow-y-auto bg-[url('/bg-character-mobile.png')] md:bg-[url('/bg-character-main.png')] bg-cover bg-center bg-no-repeat pt-[70px] md:pt-[50px]  md:pb-15 px-[16px]">
+    <div className="relative flex min-h-0 flex-col flex-1 gap-11 md:justify-between items-center w-full h-dvh max-h-dvh overflow-y-auto pt-[70px] md:pt-[50px]  md:pb-15 px-[16px]">
+      <ScreenBackground
+        mobileSrc="/bg-character-mobile.png"
+        desktopSrc="/bg-character-main.png"
+      />
       <div className="shrink-0 flex flex-col mx-auto text-center">
         <AccentText className="text-center uppercase text-[18px] md:text-[40px] text-white font-bold">
           Кто поведет тебя

@@ -6,6 +6,7 @@ import { Press_Start_2P } from "next/font/google";
 import Button from "@/components/Button";
 import { copyToClipboard } from "@/components/CopyButton";
 import { updateGame, type PlayerSessionState } from "@/lib/api-client";
+import ScreenBackground from "@/components/ScreenBackground";
 
 const pressStart2P = Press_Start_2P({
   weight: "400",
@@ -77,7 +78,11 @@ function Victory({
 
   return (
     <>
-      <div className="flex h-screen w-full flex-col items-center mx-auto bg-[url('/bg-victory-mobile.png')] md:bg-[url('/bg-victory-main.png')] bg-cover bg-center bg-no-repeat px-[16px] pb-[102px] md:pb-[100px] pt-[40px] md:pt-[45px]">
+      <div className="relative flex h-screen w-full flex-col items-center mx-auto px-[16px] pb-[102px] md:pb-[100px] pt-[40px] md:pt-[45px]">
+        <ScreenBackground
+          mobileSrc="/bg-victory-mobile.png"
+          desktopSrc="/bg-victory-main.png"
+        />
         <div className="flex flex-col md:gap-1 items-center">
           <h2
             id="modal-title"
